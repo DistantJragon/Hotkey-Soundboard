@@ -9,11 +9,28 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    directoryentry.cpp \
+    flowlayout.cpp \
+    hotkeymanager.cpp \
     main.cpp \
-    hotkeysoundboard.cpp
+    hotkeysoundboard.cpp \
+    playableentry.cpp \
+    soundboard.cpp \
+    soundfileentry.cpp \
+    soundgroup.cpp \
+    soundgroupwidget.cpp
 
 HEADERS += \
-    hotkeysoundboard.h
+    directoryentry.h \
+    flowlayout.h \
+    hotkey.h \
+    hotkeymanager.h \
+    hotkeysoundboard.h \
+    playableentry.h \
+    soundboard.h \
+    soundfileentry.h \
+    soundgroup.h \
+    soundgroupwidget.h
 
 FORMS += \
     hotkeysoundboard.ui

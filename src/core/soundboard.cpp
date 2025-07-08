@@ -66,7 +66,7 @@ void Soundboard::newSoundGroup() {
       [](const std::unique_ptr<SoundGroup> &group, const std::string &name) {
         return group->getName() < name;
       });
-  auto new_it = soundGroups.emplace(it, std::make_unique<SoundGroup>(newName));
+  soundGroups.emplace(it, std::make_unique<SoundGroup>(hotkeyManager, newName));
 }
 
 void Soundboard::sortSoundGroups() {

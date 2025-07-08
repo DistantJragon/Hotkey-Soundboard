@@ -33,8 +33,8 @@ public:
    * @return A reference to the sound group if found, or an empty optional if
    * not
    */
-  std::optional<std::reference_wrapper<SoundGroup>> getSoundGroupByName(
-      const std::string &name);
+  std::optional<std::reference_wrapper<SoundGroup>>
+  getSoundGroupByName(const std::string &name);
 
   /**
    * Sorts the sound groups in the soundboard by their names. Hopefully this is

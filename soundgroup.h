@@ -14,7 +14,7 @@
 
 class SoundGroup {
 public:
-  SoundGroup(HotkeyManager& hkManager, const std::string &name);
+  SoundGroup(HotkeyManager &hkManager, const std::string &name);
   ~SoundGroup() = default;
   void play();
 

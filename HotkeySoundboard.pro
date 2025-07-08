@@ -9,31 +9,31 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    directoryentry.cpp \
-    flowlayout.cpp \
-    hotkeymanager.cpp \
     main.cpp \
-    hotkeysoundboard.cpp \
-    playableentry.cpp \
-    soundboard.cpp \
-    soundfileentry.cpp \
-    soundgroup.cpp \
-    soundgroupwidget.cpp
+    src/core/directoryentry.cpp \
+    src/core/hotkeymanager.cpp \
+    src/core/playableentry.cpp \
+    src/core/soundboard.cpp \
+    src/core/soundfileentry.cpp \
+    src/core/soundgroup.cpp \
+    src/ui/flowlayout.cpp \
+    src/ui/hotkeysoundboard.cpp \
+    src/ui/soundgroupwidget.cpp
 
 HEADERS += \
-    directoryentry.h \
-    flowlayout.h \
-    hotkey.h \
-    hotkeymanager.h \
-    hotkeysoundboard.h \
-    playableentry.h \
-    soundboard.h \
-    soundfileentry.h \
-    soundgroup.h \
-    soundgroupwidget.h
+    src/core/directoryentry.h \
+    src/core/hotkey.h \
+    src/core/hotkeymanager.h \
+    src/core/playableentry.h \
+    src/core/soundboard.h \
+    src/core/soundfileentry.h \
+    src/core/soundgroup.h \
+    src/ui/flowlayout.h \
+    src/ui/hotkeysoundboard.h \
+    src/ui/soundgroupwidget.h
 
 FORMS += \
-    hotkeysoundboard.ui
+    src/forms/hotkeysoundboard.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

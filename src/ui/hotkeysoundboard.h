@@ -2,8 +2,8 @@
 #define HOTKEYSOUNDBOARD_H
 
 #include <QMainWindow>
-#include "soundboard.h"
-#include "flowlayout.h"
+#include "src/core/soundboard.h"
+#include "src/ui/flowlayout.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

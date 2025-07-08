@@ -1,7 +1,7 @@
 #ifndef DIRECTORYENTRY_H
 #define DIRECTORYENTRY_H
 
-#include "playableentry.h"
+#include "src/core/playableentry.h"
 
 class DirectoryEntry : public PlayableEntry {
 public:

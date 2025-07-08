@@ -1,7 +1,7 @@
 #ifndef HOTKEYMANAGER_H
 #define HOTKEYMANAGER_H
 
-#include "hotkey.h"
+#include "src/core/hotkey.h"
 
 class HotkeyManager {
 public:

@@ -1,4 +1,4 @@
-#include "soundboard.h"
+#include "src/core/soundboard.h"
 
 #include <algorithm>
 

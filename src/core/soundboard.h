@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "soundgroup.h"
+#include "src/core/soundgroup.h"
 
 class Soundboard {
 public:

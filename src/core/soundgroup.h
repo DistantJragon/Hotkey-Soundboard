@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "hotkey.h"
-#include "hotkeymanager.h"
-#include "playableentry.h"
+#include "src/core/hotkey.h"
+#include "src/core/hotkeymanager.h"
+#include "src/core/playableentry.h"
 
 #define UNNAMED_SOUND_GROUP_NAME "New Sound Group"
 #define UNNAMED_SOUND_GROUP_PREFIX "New Sound Group "

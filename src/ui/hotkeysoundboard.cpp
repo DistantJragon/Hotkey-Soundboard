@@ -1,4 +1,4 @@
-#include "hotkeysoundboard.h"
+#include "src/ui/hotkeysoundboard.h"
 #include "ui_hotkeysoundboard.h"
 
 HotkeySoundboard::HotkeySoundboard(QWidget *parent)

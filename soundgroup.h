@@ -18,7 +18,6 @@ public:
   ~SoundGroup() = default;
   void play();
 
-  unsigned int getID() const { return id; }
   std::string getName() const { return name; }
   bool isRandomPlay() const { return randomPlay; }
   const std::vector<std::reference_wrapper<Hotkey>> &getHotkeys() const {
@@ -28,7 +27,6 @@ public:
   unsigned int getCategory() const { return category; }
   unsigned int getWeightSum() const { return weightSum; }
   unsigned int getOrderTracker() const { return orderTracker; }
-  void setID(unsigned int newID) { id = newID; }
   void setName(const std::string &newName) { name = newName; }
   void setRandomPlay(bool random) { randomPlay = random; }
 
@@ -37,7 +35,6 @@ private:
   std::vector<std::reference_wrapper<Hotkey>> hotkeys;
   std::reference_wrapper<HotkeyManager> hotkeyManager;
   std::string name;
-  unsigned int id = -1;
   unsigned int category = 0;
   unsigned int weightSum = 0;
   unsigned int orderTracker = 0;

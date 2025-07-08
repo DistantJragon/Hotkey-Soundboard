@@ -36,19 +36,6 @@ public:
   std::optional<std::reference_wrapper<SoundGroup>> getSoundGroupByName(
       const std::string &name);
 
-
-  /**
-   * Reassigns IDs to all sound groups in the soundboard, starting from 0.
-   * This is useful after adding, removing, renaming, or reordering sound
-   * groups to ensure that all IDs are unique and sequential.
-   *
-   * @overload
-   * @param start An iterator to the sound group from which to start
-   */
-  void reassignSoundGroupIDs();
-  void reassignSoundGroupIDs(
-      std::vector<std::unique_ptr<SoundGroup>>::iterator start);
-
   /**
    * Sorts the sound groups in the soundboard by their names. Hopefully this is
    * used rarely.

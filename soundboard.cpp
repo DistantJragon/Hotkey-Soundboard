@@ -44,23 +44,6 @@ int Soundboard::findMaxUnnamedSoundGroupName() const {
   return -1;
 }
 
-void Soundboard::reassignSoundGroupIDs() {
-  unsigned int id = 0;
-  for (auto &group : soundGroups) {
-    group->setID(id++);
-  }
-}
-
-void Soundboard::reassignSoundGroupIDs(
-    std::vector<std::unique_ptr<SoundGroup>>::iterator start) {
-  // Get the id of the previous sound group
-  unsigned int id =
-      start != soundGroups.begin() ? (*(start - 1))->getID() + 1 : 0;
-  for (auto it = start; it != soundGroups.end(); it++) {
-    (*it)->setID(id++);
-  }
-}
-
 void Soundboard::newSoundGroup() {
   int maxUnnamedNumber = findMaxUnnamedSoundGroupName();
   std::string newName;
@@ -79,7 +62,6 @@ void Soundboard::newSoundGroup() {
         return group->getName() < name;
       });
   auto new_it = soundGroups.emplace(it, std::make_unique<SoundGroup>(newName));
-  reassignSoundGroupIDs(new_it);
 }
 
 void Soundboard::sortSoundGroups() {
@@ -88,7 +70,6 @@ void Soundboard::sortSoundGroups() {
                const std::unique_ptr<SoundGroup> &b) {
               return a->getName() < b->getName();
             });
-  reassignSoundGroupIDs();
 }
 
 bool Soundboard::checkSoundGroupsSorted() const {

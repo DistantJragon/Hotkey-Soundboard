@@ -8,8 +8,7 @@ std::optional<std::reference_wrapper<SoundGroup>>
 Soundboard::getSoundGroupByName(const std::string &name) {
   auto it = std::lower_bound(
       soundGroups.begin(), soundGroups.end(), name,
-      [](const std::unique_ptr<SoundGroup> &group,
-         const std::string &name) {
+      [](const std::unique_ptr<SoundGroup> &group, const std::string &name) {
         return group->getName() < name;
       });
   if (it != soundGroups.end() && (*it)->getName() == name) {
@@ -25,12 +24,17 @@ int Soundboard::findMaxUnnamedSoundGroupName() const {
   // necessary.)
   for (auto it = soundGroups.rbegin(); it != soundGroups.rend(); ++it) {
     std::string name = (*it)->getName();
-    if (name.starts_with(UNNAMED_SOUND_GROUP_NAME)) {
-      if (name.length() >= UNNAMED_SOUND_GROUP_NAME_LENGTH + 1) {
+    if (name.substr(0, SoundGroupDefaults::NAME_LENGTH) ==
+        SoundGroupDefaults::NAME) {
+      if (name.length() == SoundGroupDefaults::NAME_LENGTH) {
         // The name has no number part, so we can return 0.
         return 0;
+      } else if (name.length() <= SoundGroupDefaults::PREFIX_LENGTH) {
+        // The name has no number part, but has a length that can't be created
+        // by the program, so it isn't unnamed
+        return -1;
       }
-      std::string numberPart = name.substr(UNNAMED_SOUND_GROUP_NAME_LENGTH + 2);
+      std::string numberPart = name.substr(SoundGroupDefaults::PREFIX_LENGTH);
       try {
         unsigned int number = std::stoul(numberPart);
         return number;
@@ -48,9 +52,10 @@ void Soundboard::newSoundGroup() {
   int maxUnnamedNumber = findMaxUnnamedSoundGroupName();
   std::string newName;
   if (maxUnnamedNumber >= 0) {
-    newName = UNNAMED_SOUND_GROUP_PREFIX + std::to_string(maxUnnamedNumber + 1);
+    newName = std::string(SoundGroupDefaults::PREFIX) +
+              std::to_string(maxUnnamedNumber + 1);
   } else {
-    newName = UNNAMED_SOUND_GROUP_NAME;
+    newName = SoundGroupDefaults::NAME;
   }
   if (getSoundGroupByName(newName).has_value()) {
     throw SoundGroupNameExistsException(newName);

@@ -1,16 +1,21 @@
 #ifndef SOUNDGROUP_H
 #define SOUNDGROUP_H
 
+#include <cstring>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "src/core/hotkey.h"
 #include "src/core/hotkeymanager.h"
 #include "src/core/playableentry.h"
 
-#define UNNAMED_SOUND_GROUP_NAME "New Sound Group"
-#define UNNAMED_SOUND_GROUP_PREFIX "New Sound Group "
-#define UNNAMED_SOUND_GROUP_NAME_LENGTH 15
+namespace SoundGroupDefaults {
+constexpr std::string_view NAME = "New Sound Group";
+constexpr std::string_view PREFIX = "New Sound Group ";
+constexpr size_t NAME_LENGTH = NAME.length();
+constexpr size_t PREFIX_LENGTH = PREFIX.length();
+} // namespace SoundGroupDefaults
 
 class SoundGroup {
 public:

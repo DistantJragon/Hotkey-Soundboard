@@ -53,14 +53,4 @@ private:
   HotkeyManager hotkeyManager;
 };
 
-struct SoundGroupNameExistsException : public std::runtime_error {
-public:
-  explicit SoundGroupNameExistsException(const SoundGroup &group)
-      : std::runtime_error("Sound group with name '" + group.getName() +
-                           "' already exists.") {}
-  explicit SoundGroupNameExistsException(const std::string &name)
-      : std::runtime_error("Sound group with name '" + name +
-                           "' already exists.") {}
-};
-
 #endif // SOUNDBOARD_H

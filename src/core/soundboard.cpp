@@ -1,5 +1,6 @@
 #include "src/core/soundboard.h"
 
+#include "src/exceptions/exceptions.h"
 #include <algorithm>
 
 Soundboard::Soundboard() {}
@@ -58,7 +59,7 @@ void Soundboard::newSoundGroup() {
     newName = SoundGroupDefaults::NAME;
   }
   if (getSoundGroupByName(newName).has_value()) {
-    throw SoundGroupNameExistsException(newName);
+    throw SbExceptions::SoundGroupNameExists(newName);
   }
   // Emplace the new group in the correct position to keep the list sorted.
   auto it = std::lower_bound(

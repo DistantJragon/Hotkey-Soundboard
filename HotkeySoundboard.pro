@@ -28,6 +28,7 @@ HEADERS += \
     src/core/soundboard.h \
     src/core/soundfileentry.h \
     src/core/soundgroup.h \
+    src/exceptions/exceptions.h \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
     src/ui/soundgroupwidget.h

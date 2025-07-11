@@ -1,17 +1,21 @@
 #include "src/core/soundboard.h"
-
 #include "src/exceptions/exceptions.h"
 #include <algorithm>
 
 Soundboard::Soundboard() {}
 
-std::optional<std::reference_wrapper<SoundGroup>>
-Soundboard::getSoundGroupByName(const std::string &name) {
-  auto it = std::lower_bound(
+std::vector<std::unique_ptr<SoundGroup>>::iterator
+Soundboard::searchSoundGroupsByName(const std::string &name) {
+  return std::lower_bound(
       soundGroups.begin(), soundGroups.end(), name,
       [](const std::unique_ptr<SoundGroup> &group, const std::string &name) {
         return group->getName() < name;
       });
+}
+
+std::optional<std::reference_wrapper<SoundGroup>>
+Soundboard::getSoundGroupByName(const std::string &name) {
+  auto it = searchSoundGroupsByName(name);
   if (it != soundGroups.end() && (*it)->getName() == name) {
     return std::ref(**it);
   } else {
@@ -19,37 +23,57 @@ Soundboard::getSoundGroupByName(const std::string &name) {
   }
 }
 
+std::optional<std::vector<std::unique_ptr<SoundGroup>>::iterator>
+Soundboard::getSoundGroupIteratorByName(const std::string &name) {
+  auto it = searchSoundGroupsByName(name);
+  if (it != soundGroups.end() && (*it)->getName() == name) {
+    return it;
+  } else {
+    return std::nullopt;
+  }
+}
+
 int Soundboard::findMaxUnnamedSoundGroupName() const {
-  // The sound groups are sorted by name, so we can start from the end and find
-  // the first unnamed group. (Could be optimized with binary search if
-  // necessary.)
-  for (auto it = soundGroups.rbegin(); it != soundGroups.rend(); ++it) {
-    std::string name = (*it)->getName();
-    if (name.substr(0, SoundGroupDefaults::NAME_LENGTH) ==
+  // Find the last sound group with a name starting with the default name
+  auto it = std::upper_bound(
+      soundGroups.rbegin(), soundGroups.rend(), SoundGroupDefaults::NAME,
+      [](const std::string_view &name, const std::unique_ptr<SoundGroup> &group) {
+        return group->getName().substr(0, name.size()) <= name;
+      });
+  if (it == soundGroups.rend()) {
+    // No possible unnamed sound groups found
+    return -1;
+  }
+  // Iterate backwards to find the highest numbered unnamed sound group
+  for (; it != soundGroups.rend(); ++it) {
+    const std::string &groupName = (*it)->getName();
+    if (groupName == SoundGroupDefaults::NAME) {
+      // Found a sound group with the default name
+      return 0;
+    }
+    if (groupName.substr(0, SoundGroupDefaults::NAME.size()) !=
         SoundGroupDefaults::NAME) {
-      if (name.length() == SoundGroupDefaults::NAME_LENGTH) {
-        // The name has no number part, so we can return 0.
-        return 0;
-      } else if (name.length() <= SoundGroupDefaults::PREFIX_LENGTH) {
-        // The name has no number part, but has a length that can't be created
-        // by the program, so it isn't unnamed
-        return -1;
-      }
-      std::string numberPart = name.substr(SoundGroupDefaults::PREFIX_LENGTH);
+      // No unnamed sound group found
+      return -1;
+    }
+    if (groupName.size() > SoundGroupDefaults::PREFIX.size()) {
+      // Extract the number part from the name
+      std::string numberPart =
+          groupName.substr(SoundGroupDefaults::PREFIX.size());
       try {
-        unsigned int number = std::stoul(numberPart);
+        int number = std::stoi(numberPart);
+        // Return the extracted number
         return number;
       } catch (const std::invalid_argument &) {
-        // If the conversion fails, then the sound group isn't really unnamed
+        // Not a valid number, continue searching
         continue;
       }
-      // The function will throw an out_of_range exception if necessary.
     }
   }
   return -1;
 }
 
-void Soundboard::newSoundGroup() {
+SoundGroup *Soundboard::newSoundGroup() {
   int maxUnnamedNumber = findMaxUnnamedSoundGroupName();
   std::string newName;
   if (maxUnnamedNumber >= 0) {
@@ -58,16 +82,15 @@ void Soundboard::newSoundGroup() {
   } else {
     newName = SoundGroupDefaults::NAME;
   }
-  if (getSoundGroupByName(newName).has_value()) {
+  if (getSoundGroupIteratorByName(newName).has_value()) {
     throw SbExceptions::SoundGroupNameExists(newName);
   }
-  // Emplace the new group in the correct position to keep the list sorted.
-  auto it = std::lower_bound(
-      soundGroups.begin(), soundGroups.end(), newName,
-      [](const std::unique_ptr<SoundGroup> &group, const std::string &name) {
-        return group->getName() < name;
-      });
-  soundGroups.emplace(it, std::make_unique<SoundGroup>(hotkeyManager, newName));
+  std::unique_ptr<SoundGroup> newGroup =
+      std::make_unique<SoundGroup>(hotkeyManager, newName);
+  SoundGroup *newGroupPtr = newGroup.get();
+  auto it = searchSoundGroupsByName(newName);
+  soundGroups.emplace(it, std::move(newGroup));
+  return newGroupPtr;
 }
 
 void Soundboard::sortSoundGroups() {

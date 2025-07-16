@@ -1,3 +1,3 @@
-#include "src/core/soundfileentry.h"
+#include "core/soundfileentry.h"
 
 SoundFileEntry::SoundFileEntry() {}

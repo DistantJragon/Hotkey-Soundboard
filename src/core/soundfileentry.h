@@ -1,12 +1,11 @@
 #ifndef SOUNDFILEENTRY_H
 #define SOUNDFILEENTRY_H
 
-#include "src/core/playableentry.h"
+#include "core/playableentry.h"
 
-class SoundFileEntry : public PlayableEntry
-{
+class SoundFileEntry : public PlayableEntry {
 public:
-    SoundFileEntry();
+  SoundFileEntry();
 };
 
 #endif // SOUNDFILEENTRY_H

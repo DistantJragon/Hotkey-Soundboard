@@ -1,3 +1,3 @@
-#include "src/core/playableentry.h"
+#include "core/playableentry.h"
 
 PlayableEntry::PlayableEntry() {}

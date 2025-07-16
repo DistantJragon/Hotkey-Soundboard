@@ -38,7 +38,8 @@ HEADERS += \
     src/ui/soundgroupwidget.h
 
 FORMS += \
-    src/forms/hotkeysoundboard.ui
+    src/forms/hotkeysoundboard.ui \
+    src/forms/soundgroupwidget.ui
 
 INCLUDEPATH += \
     $$PWD/src

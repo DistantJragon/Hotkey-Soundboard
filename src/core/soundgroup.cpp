@@ -1,7 +1,8 @@
-#include "src/core/soundgroup.h"
+#include "core/soundgroup.h"
 
-SoundGroup::SoundGroup(HotkeyManager &hkManager, const std::string &name)
-    : hotkeyManager(hkManager), name(name) {}
+SoundGroup::SoundGroup(HotkeyManager& hkManager, const int id,
+                       const std::string& name)
+    : hotkeyManager(hkManager), name(name), id(id) {}
 
 // TODO: Implement the destructor. Need to deregister hotkeys once they are
 // implemented.

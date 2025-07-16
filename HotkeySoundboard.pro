@@ -12,6 +12,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 ReleaseBuild {
     DEFINES += HKSBNDEBUG
 }
+
 SOURCES += \
     main.cpp \
     src/core/directoryentry.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     src/exceptions/exceptions.h \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
+    src/ui/soundgroupdefaults.h \
     src/ui/soundgroupwidget.h
 
 FORMS += \

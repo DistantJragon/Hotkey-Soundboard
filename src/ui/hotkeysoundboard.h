@@ -3,6 +3,7 @@
 
 #include "core/soundboard.h"
 #include "ui/flowlayout.h"
+#include "ui/renamesoundgroupdialog.h"
 #include "ui/soundgroupwidget.h"
 #include <QMainWindow>
 
@@ -19,22 +20,29 @@ public:
   HotkeySoundboard(QWidget* parent = nullptr);
   ~HotkeySoundboard();
 
-  void setupSoundGroupContainerWidget();
+  bool isSoundGroupNameValid(const std::string& name) const;
 
 public slots:
   void newSoundGroup();
-  void renameSoundGroup(SoundGroup* soundGroup, const QString& newName);
+  void renameSoundGroup(SoundGroup* soundGroup, const std::string newName);
   void deleteSoundGroup(SoundGroup* soundGroup);
   void hideSoundGroup(SoundGroup* soundGroup);
   void showSoundGroup(SoundGroup* soundGroup);
+  void openRenameSoundGroupDialog(SoundGroup* soundGroup);
+  void checkNewSoundGroupName(const QString& name);
 
 private:
   Ui::HotkeySoundboard* ui;
   Soundboard soundboard;
   QWidget* soundGroupContainerWidget = nullptr;
   FlowLayout* soundGroupFlowLayout = nullptr;
+  RenameSoundGroupDialog* renameSoundGroupDialog = nullptr;
   std::unordered_map<int, std::unique_ptr<SoundGroupWidget>> soundGroupWidgets;
   std::unordered_set<std::string> soundGroupNames;
+
+  void setupSoundGroupContainerWidget();
+
+  void setupSoundGroupRenameDialog();
 
   bool soundGroupNameCompare(const std::string& name1,
                              const std::string& name2) const;

@@ -21,8 +21,10 @@ SOURCES += \
     src/core/soundboard.cpp \
     src/core/soundfileentry.cpp \
     src/core/soundgroup.cpp \
+    src/ui/clickablelabel.cpp \
     src/ui/flowlayout.cpp \
     src/ui/hotkeysoundboard.cpp \
+    src/ui/renamesoundgroupdialog.cpp \
     src/ui/soundgroupwidget.cpp
 
 HEADERS += \
@@ -34,13 +36,16 @@ HEADERS += \
     src/core/soundfileentry.h \
     src/core/soundgroup.h \
     src/exceptions/exceptions.h \
+    src/ui/clickablelabel.h \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
+    src/ui/renamesoundgroupdialog.h \
     src/ui/soundgroupdefaults.h \
     src/ui/soundgroupwidget.h
 
 FORMS += \
     src/forms/hotkeysoundboard.ui \
+    src/forms/renamesoundgroupdialog.ui \
     src/forms/soundgroupwidget.ui
 
 INCLUDEPATH += \

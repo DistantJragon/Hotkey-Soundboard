@@ -2,13 +2,14 @@
 #define SOUNDGROUPWIDGET_H
 
 #include "core/soundgroup.h"
-#include <QWidget>
+#include "qboxlayout.h"
+#include <QFrame>
 
 namespace Ui {
 class SoundGroupWidget;
 }
 
-class SoundGroupWidget : public QWidget {
+class SoundGroupWidget : public QFrame {
   Q_OBJECT
 
 public:
@@ -16,14 +17,19 @@ public:
                             SoundGroup* soundGroup = nullptr);
   ~SoundGroupWidget();
   void refreshSoundGroupDisplay();
-  void updateNameLabel(const QString& newName);
+  void updateNameLabel();
 
-  const QWidget* getNameLabel() const;
   const SoundGroup* getSoundGroup() const { return soundGroup; }
+
+signals:
+  void renameRequested(SoundGroup* soundGroup);
 
 private:
   Ui::SoundGroupWidget* ui;
-  const SoundGroup* soundGroup;
+  SoundGroup* const soundGroup;
+
+  QVBoxLayout* playableEntryLayout = nullptr;
+  QVBoxLayout* hotkeyLayout = nullptr;
 };
 
 #endif // SOUNDGROUPWIDGET_H

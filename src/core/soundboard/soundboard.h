@@ -1,7 +1,7 @@
 #ifndef SOUNDBOARD_H
 #define SOUNDBOARD_H
 
-#include "core/soundgroup.h"
+#include "core/soundboard/soundgroup.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -39,7 +39,7 @@ public:
 
 private:
   std::unordered_map<int, std::unique_ptr<SoundGroup>> soundGroups;
-  HotkeyManager hotkeyManager;
+  IHotkeyManager hotkeyManager;
   int nextId = 0;
 };
 

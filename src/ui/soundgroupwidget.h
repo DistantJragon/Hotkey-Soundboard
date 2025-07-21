@@ -1,7 +1,7 @@
 #ifndef SOUNDGROUPWIDGET_H
 #define SOUNDGROUPWIDGET_H
 
-#include "core/soundgroup.h"
+#include "core/soundboard/soundgroup.h"
 #include "qboxlayout.h"
 #include <QFrame>
 

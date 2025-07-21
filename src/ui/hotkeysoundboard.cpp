@@ -1,5 +1,5 @@
 #include "ui/hotkeysoundboard.h"
-#include "exceptions/exceptions.h"
+#include "core/soundboard/exceptions.h"
 #include "ui/soundgroupdefaults.h"
 #include "ui_hotkeysoundboard.h"
 

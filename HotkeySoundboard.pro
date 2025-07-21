@@ -15,12 +15,13 @@ ReleaseBuild {
 
 SOURCES += \
     main.cpp \
-    src/core/directoryentry.cpp \
-    src/core/hotkeymanager.cpp \
-    src/core/playableentry.cpp \
-    src/core/soundboard.cpp \
-    src/core/soundfileentry.cpp \
-    src/core/soundgroup.cpp \
+    src/core/audio/iaudioengine.cpp \
+    src/core/hotkey/ihotkeymanager.cpp \
+    src/core/soundboard/directoryentry.cpp \
+    src/core/soundboard/playableentry.cpp \
+    src/core/soundboard/soundboard.cpp \
+    src/core/soundboard/soundfileentry.cpp \
+    src/core/soundboard/soundgroup.cpp \
     src/ui/clickablelabel.cpp \
     src/ui/flowlayout.cpp \
     src/ui/hotkeysoundboard.cpp \
@@ -28,14 +29,15 @@ SOURCES += \
     src/ui/soundgroupwidget.cpp
 
 HEADERS += \
-    src/core/directoryentry.h \
-    src/core/hotkey.h \
-    src/core/hotkeymanager.h \
-    src/core/playableentry.h \
-    src/core/soundboard.h \
-    src/core/soundfileentry.h \
-    src/core/soundgroup.h \
-    src/exceptions/exceptions.h \
+    src/core/audio/iaudioengine.h \
+    src/core/hotkey/hotkey.h \
+    src/core/hotkey/ihotkeymanager.h \
+    src/core/soundboard/directoryentry.h \
+    src/core/soundboard/playableentry.h \
+    src/core/soundboard/soundboard.h \
+    src/core/soundboard/soundfileentry.h \
+    src/core/soundboard/soundgroup.h \
+    src/core/soundboard/exceptions.h \
     src/ui/clickablelabel.h \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \

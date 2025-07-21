@@ -1,16 +1,16 @@
 #ifndef SOUNDGROUP_H
 #define SOUNDGROUP_H
 
-#include "core/hotkey.h"
-#include "core/hotkeymanager.h"
-#include "core/playableentry.h"
+#include "core/hotkey/hotkey.h"
+#include "core/hotkey/ihotkeymanager.h"
+#include "core/soundboard/playableentry.h"
 #include <cstring>
 #include <string>
 #include <vector>
 
 class SoundGroup {
 public:
-  SoundGroup(HotkeyManager& hkManager, const int id, const std::string& name);
+  SoundGroup(IHotkeyManager& hkManager, const int id, const std::string& name);
   ~SoundGroup() = default;
   void play();
 
@@ -30,7 +30,7 @@ public:
 private:
   std::vector<PlayableEntry> entries;
   std::vector<std::reference_wrapper<Hotkey>> hotkeys;
-  std::reference_wrapper<HotkeyManager> hotkeyManager;
+  std::reference_wrapper<IHotkeyManager> hotkeyManager;
   std::string name;
   const int id = -1;
   unsigned int category = 0;

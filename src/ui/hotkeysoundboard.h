@@ -1,7 +1,7 @@
 #ifndef HOTKEYSOUNDBOARD_H
 #define HOTKEYSOUNDBOARD_H
 
-#include "core/soundboard.h"
+#include "core/soundboard/soundboard.h"
 #include "ui/flowlayout.h"
 #include "ui/renamesoundgroupdialog.h"
 #include "ui/soundgroupwidget.h"

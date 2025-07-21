@@ -1,6 +1,6 @@
-#include "core/soundgroup.h"
+#include "core/soundboard/soundgroup.h"
 
-SoundGroup::SoundGroup(HotkeyManager& hkManager, const int id,
+SoundGroup::SoundGroup(IHotkeyManager& hkManager, const int id,
                        const std::string& name)
     : hotkeyManager(hkManager), name(name), id(id) {}
 

@@ -1,5 +1,5 @@
-#include "core/soundboard.h"
-#include "exceptions/exceptions.h"
+#include "core/soundboard/soundboard.h"
+#include "core/soundboard/exceptions.h"
 
 Soundboard::Soundboard() {}
 

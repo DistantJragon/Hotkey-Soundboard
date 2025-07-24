@@ -15,7 +15,6 @@ ReleaseBuild {
 
 SOURCES += \
     main.cpp \
-    src/core/audio/iaudioengine.cpp \
     src/core/hotkey/ihotkeymanager.cpp \
     src/core/soundboard/directoryentry.cpp \
     src/core/soundboard/playableentry.cpp \

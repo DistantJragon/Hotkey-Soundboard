@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,6 +15,7 @@ ReleaseBuild {
 
 SOURCES += \
     main.cpp \
+    src/adapters/qt/basicaudioengine.cpp \
     src/core/hotkey/ihotkeymanager.cpp \
     src/core/soundboard/directoryentry.cpp \
     src/core/soundboard/playableentry.cpp \
@@ -28,6 +29,8 @@ SOURCES += \
     src/ui/soundgroupwidget.cpp
 
 HEADERS += \
+    src/adapters/qt/basicaudioengine.h \
+    src/core/audio/audiotypes.h \
     src/core/audio/iaudioengine.h \
     src/core/hotkey/hotkey.h \
     src/core/hotkey/ihotkeymanager.h \

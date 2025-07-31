@@ -1,6 +1,7 @@
 #ifndef HOTKEYSOUNDBOARD_H
 #define HOTKEYSOUNDBOARD_H
 
+#include "adapters/qt/basicaudioengine.h"
 #include "core/soundboard/soundboard.h"
 #include "ui/flowlayout.h"
 #include "ui/renamesoundgroupdialog.h"
@@ -33,6 +34,7 @@ public slots:
 
 private:
   Ui::HotkeySoundboard* ui;
+  sb::adapters::qt::BasicAudioEngine engine;
   Soundboard soundboard;
   QWidget* soundGroupContainerWidget = nullptr;
   FlowLayout* soundGroupFlowLayout = nullptr;

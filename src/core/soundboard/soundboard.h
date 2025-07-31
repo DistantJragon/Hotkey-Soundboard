@@ -1,46 +1,49 @@
 #ifndef SOUNDBOARD_H
 #define SOUNDBOARD_H
 
+#include "core/audio/iaudioengine.h"
+#include "core/soundboard/soundboardtypes.h"
 #include "core/soundboard/soundgroup.h"
-#include <memory>
+#include <random>
 #include <string>
 #include <unordered_map>
 
 class Soundboard {
 public:
-  Soundboard();
+  Soundboard(sb::audio::IAudioEngine* audioEngine);
   ~Soundboard() = default;
 
   /*!
    * Adds a new unnamed sound group to the soundboard.
    * \param name The name of the new sound group.
-   * \return The non-owning raw pointer to the new sound group.
-   * \throws SoundGroupIdExists if a sound group with the same ID already exists
+   * \return A handle to the newly created sound group.
    */
-  SoundGroup* newSoundGroup(const std::string& name);
+  GroupHandle newSoundGroup(const std::string& name);
 
   /*!
    * Renames a sound group.
-   * \param soundGroup The raw pointer to the sound group to rename.
+   * \param soundGroup The handle to the sound group to rename.
    * \param newName The new name for the sound group.
-   * \throws SoundGroupDoesNotExist if the sound group does not exist
    */
-  void renameSoundGroup(SoundGroup* soundGroup, const std::string& newName);
+  void renameSoundGroup(GroupHandle group, const std::string& newName);
 
   /*!
    * Removes a sound group from the soundboard.
-   * \param soundGroup A reference to the raw pointer to the sound group to
-   * delete.
-   * \throws SoundGroupDoesNotExist if the sound group does not exist
+   * \param soundGroup The handle to the sound group to remove.
    */
-  void deleteSoundGroup(SoundGroup*& soundGroup);
+  void deleteSoundGroup(GroupHandle soundGroup);
 
   int getNextId() const { return nextId; }
 
+  bool isValidGroup(GroupHandle group) const;
+
+  void playSoundGroup(GroupHandle group);
+
 private:
-  std::unordered_map<int, std::unique_ptr<SoundGroup>> soundGroups;
-  IHotkeyManager hotkeyManager;
-  int nextId = 0;
+  std::unordered_map<GroupHandle, SoundGroup> soundGroups;
+  std::mt19937 randomEngine{std::random_device{}()};
+  sb::audio::IAudioEngine* const audioEngine = nullptr;
+  GroupHandle nextId = 0;
 };
 
 #endif // SOUNDBOARD_H

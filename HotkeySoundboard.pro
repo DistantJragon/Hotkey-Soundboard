@@ -26,6 +26,7 @@ SOURCES += \
     src/ui/flowlayout.cpp \
     src/ui/hotkeysoundboard.cpp \
     src/ui/renamesoundgroupdialog.cpp \
+    src/ui/soundentrywidget.cpp \
     src/ui/soundgroupwidget.cpp
 
 HEADERS += \
@@ -44,6 +45,7 @@ HEADERS += \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
     src/ui/renamesoundgroupdialog.h \
+    src/ui/soundentrywidget.h \
     src/ui/soundgroupdefaults.h \
     src/ui/soundgroupwidget.h
 

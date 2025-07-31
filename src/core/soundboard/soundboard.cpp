@@ -1,31 +1,47 @@
 #include "core/soundboard/soundboard.h"
-#include "core/soundboard/exceptions.h"
 
-Soundboard::Soundboard() {}
+Soundboard::Soundboard(sb::audio::IAudioEngine* audioEngine)
+    : audioEngine(audioEngine) {}
 
-SoundGroup* Soundboard::newSoundGroup(const std::string& name) {
-  auto result = soundGroups.try_emplace(
-      nextId, std::make_unique<SoundGroup>(hotkeyManager, nextId, name));
+GroupHandle Soundboard::newSoundGroup(const std::string& name) {
+  if (nextId == InvalidGroupHandle) {
+    return InvalidGroupHandle;
+  }
+  auto result = soundGroups.try_emplace(nextId, nextId, name);
   if (!result.second) {
-    throw SbExceptions::SoundGroupIdExists(nextId);
+    return InvalidGroupHandle;
   }
   nextId++;
-  return result.first->second.get();
+  return result.first->first;
 }
 
-void Soundboard::renameSoundGroup(SoundGroup* soundGroup,
+void Soundboard::renameSoundGroup(GroupHandle group,
                                   const std::string& newName) {
-  if (!soundGroup) {
-    throw SbExceptions::SoundGroupDoesNotExist();
+  if (group == InvalidGroupHandle) {
+    return;
   }
-  soundGroup->setName(newName);
+  auto it = soundGroups.find(group);
+  if (it == soundGroups.end()) {
+    return;
+  }
+  it->second.setName(newName);
 }
 
-void Soundboard::deleteSoundGroup(SoundGroup*& soundGroup) {
-  if (!soundGroup) {
-    throw SbExceptions::SoundGroupDoesNotExist();
+void Soundboard::deleteSoundGroup(GroupHandle group) {
+  if (group == InvalidGroupHandle) {
+    return;
   }
-  int id = soundGroup->getId();
-  soundGroups.erase(id);
-  soundGroup = nullptr;
+  soundGroups.erase(group);
+}
+bool Soundboard::isValidGroup(GroupHandle group) const {
+  return soundGroups.find(group) != soundGroups.end();
+}
+void Soundboard::playSoundGroup(GroupHandle group) {
+  if (group == InvalidGroupHandle) {
+    return;
+  }
+  auto it = soundGroups.find(group);
+  if (it != soundGroups.end()) {
+    it->second.play(randomEngine);
+  }
 }

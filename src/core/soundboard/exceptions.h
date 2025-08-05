@@ -1,10 +1,11 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 
+#include "core/soundboard/soundboardtypes.h"
 #include <stdexcept>
 #include <string>
 
-namespace SbExceptions {
+namespace sb::exceptions {
 
 class SoundGroupDoesNotExist : public std::runtime_error {
 public:
@@ -14,28 +15,28 @@ public:
 
 class MissingSoundGroup : public std::runtime_error {
 public:
-  explicit MissingSoundGroup(const int id)
-      : std::runtime_error("Sound group with id '" + std::to_string(id) +
+  explicit MissingSoundGroup(const GroupHandle id)
+      : std::runtime_error("Sound group with handle '" + std::to_string(id) +
                            "' is missing from the soundboard."),
-        id(id) {}
-  int getId() const { return id; }
+        handle(id) {}
+  int getHandle() const { return handle; }
 
 private:
-  const int id;
+  const GroupHandle handle;
 };
 
 class SoundGroupIdExists : public std::runtime_error {
 public:
-  explicit SoundGroupIdExists(const int id)
+  explicit SoundGroupIdExists(const GroupHandle id)
       : std::runtime_error("Sound group with id '" + std::to_string(id) +
                            "' already exists."),
-        id(id) {}
-  int getId() const { return id; }
+        handle(id) {}
+  int getHandle() const { return handle; }
 
 private:
-  const int id;
+  const GroupHandle handle;
 };
 
-} // namespace SbExceptions
+} // namespace sb::exceptions
 
 #endif // EXCEPTIONS_H

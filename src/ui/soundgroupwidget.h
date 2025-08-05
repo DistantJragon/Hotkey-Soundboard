@@ -1,6 +1,7 @@
 #ifndef SOUNDGROUPWIDGET_H
 #define SOUNDGROUPWIDGET_H
 
+#include "core/soundboard/soundboardtypes.h"
 #include "core/soundboard/soundgroup.h"
 #include "qboxlayout.h"
 #include <QFrame>
@@ -13,20 +14,24 @@ class SoundGroupWidget : public QFrame {
   Q_OBJECT
 
 public:
-  explicit SoundGroupWidget(QWidget* parent = nullptr,
-                            SoundGroup* soundGroup = nullptr);
+  explicit SoundGroupWidget(
+      QWidget* parent = nullptr,
+      sb::GroupHandle soundGroup = sb::InvalidGroupHandle);
   ~SoundGroupWidget();
-  void refreshSoundGroupDisplay();
+  void refreshSoundGroupDisplay(const sb::SoundGroup& soundGroup);
   void updateNameLabel();
 
-  const SoundGroup* getSoundGroup() const { return soundGroup; }
+  sb::GroupHandle getSoundGroupHandle() const { return soundGroup; }
 
 signals:
-  void renameRequested(SoundGroup* soundGroup);
+  void deleteRequested(sb::GroupHandle soundGroup);
+  void hideRequested(sb::GroupHandle soundGroup);
+  void refreshRequested(sb::GroupHandle soundGroup);
+  void renameRequested(sb::GroupHandle soundGroup);
 
 private:
   Ui::SoundGroupWidget* ui;
-  SoundGroup* const soundGroup;
+  const sb::GroupHandle soundGroup;
 
   QVBoxLayout* playableEntryLayout = nullptr;
   QVBoxLayout* hotkeyLayout = nullptr;

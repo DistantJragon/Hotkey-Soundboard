@@ -1,31 +1,64 @@
 #include "core/soundboard/soundboard.h"
 #include "core/soundboard/exceptions.h"
 
-Soundboard::Soundboard() {}
+namespace sb {
 
-SoundGroup* Soundboard::newSoundGroup(const std::string& name) {
-  auto result = soundGroups.try_emplace(
-      nextId, std::make_unique<SoundGroup>(hotkeyManager, nextId, name));
+Soundboard::Soundboard(sb::audio::IAudioEngine* audioEngine)
+    : audioEngine(audioEngine) {}
+
+GroupHandle Soundboard::newSoundGroup(const std::string& name) {
+  if (nextHandle == InvalidGroupHandle) {
+    return InvalidGroupHandle;
+  }
+  auto result = soundGroups.try_emplace(nextHandle, nextHandle, name);
   if (!result.second) {
-    throw SbExceptions::SoundGroupIdExists(nextId);
+    return InvalidGroupHandle;
   }
-  nextId++;
-  return result.first->second.get();
+  nextHandle++;
+  return result.first->first;
 }
 
-void Soundboard::renameSoundGroup(SoundGroup* soundGroup,
+void Soundboard::renameSoundGroup(GroupHandle group,
                                   const std::string& newName) {
-  if (!soundGroup) {
-    throw SbExceptions::SoundGroupDoesNotExist();
+  if (group == InvalidGroupHandle) {
+    return;
   }
-  soundGroup->setName(newName);
+  auto it = soundGroups.find(group);
+  if (it == soundGroups.end()) {
+    return;
+  }
+  it->second.setName(newName);
 }
 
-void Soundboard::deleteSoundGroup(SoundGroup*& soundGroup) {
-  if (!soundGroup) {
-    throw SbExceptions::SoundGroupDoesNotExist();
+void Soundboard::deleteSoundGroup(GroupHandle group) {
+  if (group == InvalidGroupHandle) {
+    return;
   }
-  int id = soundGroup->getId();
-  soundGroups.erase(id);
-  soundGroup = nullptr;
+  soundGroups.erase(group);
 }
+bool Soundboard::isValidGroup(GroupHandle group) const {
+  return soundGroups.find(group) != soundGroups.end();
+}
+
+SoundGroup& Soundboard::getSoundGroup(GroupHandle group) {
+  if (group == InvalidGroupHandle) {
+    throw exceptions::MissingSoundGroup(group);
+  }
+  auto it = soundGroups.find(group);
+  if (it == soundGroups.end()) {
+    throw exceptions::MissingSoundGroup(group);
+  }
+  return it->second;
+}
+
+void Soundboard::playSoundGroup(GroupHandle group) {
+  if (group == InvalidGroupHandle) {
+    return;
+  }
+  auto it = soundGroups.find(group);
+  if (it != soundGroups.end()) {
+    it->second.play(randomEngine);
+  }
+}
+
+} // namespace sb

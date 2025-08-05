@@ -1,42 +1,31 @@
 #ifndef SOUNDGROUP_H
 #define SOUNDGROUP_H
 
-#include "core/hotkey/hotkey.h"
-#include "core/hotkey/ihotkeymanager.h"
-#include "core/soundboard/playableentry.h"
+#include "core/soundboard/bundleentry.h"
+#include "core/soundboard/soundboardtypes.h"
 #include <cstring>
+#include <random>
 #include <string>
-#include <vector>
+
+namespace sb {
 
 class SoundGroup {
 public:
-  SoundGroup(IHotkeyManager& hkManager, const int id, const std::string& name);
+  SoundGroup(const GroupHandle handle, const std::string& name);
   ~SoundGroup() = default;
-  void play();
+  void play(std::mt19937& randomEngine);
 
+  const BundleEntry& getBundle() const { return bundle; }
   std::string getName() const { return name; }
-  int getId() const { return id; }
-  bool isRandomPlay() const { return randomPlay; }
-  const std::vector<std::reference_wrapper<Hotkey>>& getHotkeys() const {
-    return hotkeys;
-  }
-  const std::vector<PlayableEntry>& getEntries() const { return entries; }
-  unsigned int getCategory() const { return category; }
-  unsigned int getWeightSum() const { return weightSum; }
-  unsigned int getOrderTracker() const { return orderTracker; }
+  GroupHandle getHandle() const { return handle; }
   void setName(const std::string& newName) { name = newName; }
-  void setRandomPlay(bool random) { randomPlay = random; }
 
 private:
-  std::vector<PlayableEntry> entries;
-  std::vector<std::reference_wrapper<Hotkey>> hotkeys;
-  std::reference_wrapper<IHotkeyManager> hotkeyManager;
+  BundleEntry bundle;
   std::string name;
-  const int id = -1;
-  unsigned int category = 0;
-  unsigned int weightSum = 0;
-  unsigned int orderTracker = 0;
-  bool randomPlay = true;
+  const GroupHandle handle = -1;
 };
+
+} // namespace sb
 
 #endif // SOUNDGROUP_H

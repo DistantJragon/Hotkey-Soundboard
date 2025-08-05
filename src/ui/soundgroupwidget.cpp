@@ -1,7 +1,7 @@
 #include "ui/soundgroupwidget.h"
 #include "ui_soundgroupwidget.h"
 
-SoundGroupWidget::SoundGroupWidget(QWidget* parent, SoundGroup* soundGroup)
+SoundGroupWidget::SoundGroupWidget(QWidget* parent, sb::GroupHandle soundGroup)
     : QFrame(parent), ui(new Ui::SoundGroupWidget), soundGroup{soundGroup} {
   ui->setupUi(this);
 
@@ -12,22 +12,12 @@ SoundGroupWidget::SoundGroupWidget(QWidget* parent, SoundGroup* soundGroup)
   ui->playableEntryFrame->setLayout(playableEntryLayout);
   hotkeyLayout = new QVBoxLayout(ui->hotkeyFrame);
   ui->hotkeyFrame->setLayout(hotkeyLayout);
-
-  refreshSoundGroupDisplay();
 }
 
 SoundGroupWidget::~SoundGroupWidget() { delete ui; }
 
-void SoundGroupWidget::refreshSoundGroupDisplay() {
-  if (!soundGroup) {
-    return;
-  }
-  ui->nameLabel->setText(QString::fromStdString(soundGroup->getName()));
-  ui->randomPlayCheckBox->setChecked(soundGroup->isRandomPlay());
-  this->updateGeometry();
-}
-
-void SoundGroupWidget::updateNameLabel() {
-  ui->nameLabel->setText(QString::fromStdString(soundGroup->getName()));
+void SoundGroupWidget::refreshSoundGroupDisplay(const sb::SoundGroup& group) {
+  ui->nameLabel->setText(QString::fromStdString(group.getName()));
+  ui->randomPlayCheckBox->setChecked(group.getBundle().isRandomPlay());
   this->updateGeometry();
 }

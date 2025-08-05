@@ -1,11 +1,9 @@
 #ifndef HOTKEYMANAGER_H
 #define HOTKEYMANAGER_H
 
-#include "core/hotkey/hotkey.h"
-
 class IHotkeyManager {
 public:
-  IHotkeyManager();
+  virtual ~IHotkeyManager() = default;
 };
 
 #endif // HOTKEYMANAGER_H

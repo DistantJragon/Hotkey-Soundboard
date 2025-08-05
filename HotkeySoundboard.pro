@@ -16,8 +16,7 @@ ReleaseBuild {
 SOURCES += \
     main.cpp \
     src/adapters/qt/basicaudioengine.cpp \
-    src/core/hotkey/ihotkeymanager.cpp \
-    src/core/soundboard/directoryentry.cpp \
+    src/core/soundboard/bundleentry.cpp \
     src/core/soundboard/playableentry.cpp \
     src/core/soundboard/soundboard.cpp \
     src/core/soundboard/soundfileentry.cpp \
@@ -26,15 +25,15 @@ SOURCES += \
     src/ui/flowlayout.cpp \
     src/ui/hotkeysoundboard.cpp \
     src/ui/renamesoundgroupdialog.cpp \
+    src/ui/soundentrywidget.cpp \
     src/ui/soundgroupwidget.cpp
 
 HEADERS += \
     src/adapters/qt/basicaudioengine.h \
     src/core/audio/audiotypes.h \
     src/core/audio/iaudioengine.h \
-    src/core/hotkey/hotkey.h \
     src/core/hotkey/ihotkeymanager.h \
-    src/core/soundboard/directoryentry.h \
+    src/core/soundboard/bundleentry.h \
     src/core/soundboard/playableentry.h \
     src/core/soundboard/soundboard.h \
     src/core/soundboard/soundfileentry.h \
@@ -44,6 +43,7 @@ HEADERS += \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
     src/ui/renamesoundgroupdialog.h \
+    src/ui/soundentrywidget.h \
     src/ui/soundgroupdefaults.h \
     src/ui/soundgroupwidget.h
 

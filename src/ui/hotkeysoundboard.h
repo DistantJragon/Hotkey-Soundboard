@@ -1,7 +1,9 @@
 #ifndef HOTKEYSOUNDBOARD_H
 #define HOTKEYSOUNDBOARD_H
 
+#include "adapters/qt/basicaudioengine.h"
 #include "core/soundboard/soundboard.h"
+#include "core/soundboard/soundboardtypes.h"
 #include "ui/flowlayout.h"
 #include "ui/renamesoundgroupdialog.h"
 #include "ui/soundgroupwidget.h"
@@ -23,21 +25,23 @@ public:
   bool isSoundGroupNameValid(const std::string& name) const;
 
 public slots:
-  void newSoundGroup();
-  void renameSoundGroup(SoundGroup* soundGroup, const std::string newName);
-  void deleteSoundGroup(SoundGroup* soundGroup);
-  void hideSoundGroup(SoundGroup* soundGroup);
-  void showSoundGroup(SoundGroup* soundGroup);
-  void openRenameSoundGroupDialog(SoundGroup* soundGroup);
   void checkNewSoundGroupName(const QString& name);
+  void deleteSoundGroup(sb::GroupHandle soundGroup);
+  void hideSoundGroup(sb::GroupHandle soundGroup);
+  void newSoundGroup();
+  void openRenameSoundGroupDialog(sb::GroupHandle soundGroup);
+  void refreshSoundGroupDisplay(sb::GroupHandle soundGroup);
+  void renameSoundGroup(sb::GroupHandle soundGroup, const std::string newName);
+  void showSoundGroup(sb::GroupHandle soundGroup);
 
 private:
   Ui::HotkeySoundboard* ui;
-  Soundboard soundboard;
+  std::unique_ptr<sb::adapters::qt::BasicAudioEngine> engine;
+  std::unique_ptr<sb::Soundboard> soundboard;
   QWidget* soundGroupContainerWidget = nullptr;
   FlowLayout* soundGroupFlowLayout = nullptr;
   RenameSoundGroupDialog* renameSoundGroupDialog = nullptr;
-  std::unordered_map<int, std::unique_ptr<SoundGroupWidget>> soundGroupWidgets;
+  std::unordered_map<sb::GroupHandle, SoundGroupWidget> soundGroupWidgets;
   std::unordered_set<std::string> soundGroupNames;
 
   void setupSoundGroupContainerWidget();
@@ -55,9 +59,10 @@ private:
    * \return The index of the sound group widget in the flow layout.
    * If the sound group is not found, it returns -1.
    */
-  int soundGroupWidgetLowerBound(const SoundGroup* soundGroup) const;
+  int soundGroupWidgetLowerBound(const sb::GroupHandle soundGroup) const;
 
-  int soundGroupWidgetIndexOf(const SoundGroup* soundGroup, int from = 0) const;
+  int soundGroupWidgetIndexOf(const sb::GroupHandle soundGroup,
+                              int from = 0) const;
 
   /*! \brief Removes a sound group widget from the flow layout
    *
@@ -66,6 +71,6 @@ private:
    * \return true if the sound group widget was successfully removed,
    * false otherwise.
    */
-  bool removeSoundGroupWidget(const SoundGroup* soundGroup);
+  bool removeSoundGroupWidget(const sb::GroupHandle soundGroup);
 };
 #endif // HOTKEYSOUNDBOARD_H

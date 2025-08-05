@@ -1,13 +1,21 @@
 #ifndef PLAYABLEENTRY_H
 #define PLAYABLEENTRY_H
 
+#include <random>
 #include <string>
+
+namespace sb {
 
 class PlayableEntry {
 public:
-  PlayableEntry();
+  const enum class Type {
+    Bundle,
+    SoundFile,
+    String,
+  } type;
+  PlayableEntry(Type type);
   virtual ~PlayableEntry() = default;
-  virtual void play() = 0;
+  virtual void play(std::mt19937& randomEngine) = 0;
   std::string getPath() const { return path; }
   std::string getName() const { return name; }
   void setName(const std::string& newName) { name = newName; }
@@ -21,5 +29,7 @@ private:
   unsigned int weight = 1;
   bool valid = false;
 };
+
+} // namespace sb
 
 #endif // PLAYABLEENTRY_H

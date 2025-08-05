@@ -1,8 +1,12 @@
 #include "core/soundboard/soundgroup.h"
 
-SoundGroup::SoundGroup(IHotkeyManager& hkManager, const int id,
-                       const std::string& name)
-    : hotkeyManager(hkManager), name(name), id(id) {}
+namespace sb {
 
-// TODO: Implement the destructor. Need to deregister hotkeys once they are
-// implemented.
+SoundGroup::SoundGroup(const GroupHandle handle, const std::string& name)
+    : name(name), handle(handle) {
+  bundle.setName(name);
+  bundle.setWeight(1);
+}
+void SoundGroup::play(std::mt19937& randomEngine) { bundle.play(randomEngine); }
+
+} // namespace sb

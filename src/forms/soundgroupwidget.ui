@@ -23,7 +23,7 @@
    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
   </property>
   <property name="acceptDrops">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -208,7 +208,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QFrame" name="playableEntryFrame">
+       <widget class="RootBundleFrame" name="rootBundleFrame">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -222,7 +222,7 @@
          </size>
         </property>
         <property name="acceptDrops">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Panel</enum>
@@ -263,7 +263,13 @@
   <customwidget>
    <class>ClickableLabel</class>
    <extends>QLabel</extends>
-   <header>ui\clickablelabel.h</header>
+   <header>ui/clickablelabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RootBundleFrame</class>
+   <extends>QFrame</extends>
+   <header>ui/rootbundleframe.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -24,7 +24,9 @@ SOURCES += \
     src/ui/clickablelabel.cpp \
     src/ui/flowlayout.cpp \
     src/ui/hotkeysoundboard.cpp \
+    src/ui/playableentryframe.cpp \
     src/ui/renamesoundgroupdialog.cpp \
+    src/ui/rootbundleframe.cpp \
     src/ui/soundentrywidget.cpp \
     src/ui/soundgroupwidget.cpp
 
@@ -42,13 +44,16 @@ HEADERS += \
     src/ui/clickablelabel.h \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
+    src/ui/playableentryframe.h \
     src/ui/renamesoundgroupdialog.h \
+    src/ui/rootbundleframe.h \
     src/ui/soundentrywidget.h \
     src/ui/soundgroupdefaults.h \
     src/ui/soundgroupwidget.h
 
 FORMS += \
     src/forms/hotkeysoundboard.ui \
+    src/forms/playableentryframe.ui \
     src/forms/renamesoundgroupdialog.ui \
     src/forms/soundgroupwidget.ui
 

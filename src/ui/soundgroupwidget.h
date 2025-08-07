@@ -31,10 +31,9 @@ signals:
 
 private:
   Ui::SoundGroupWidget* ui;
-  const sb::GroupHandle soundGroup;
-
   QVBoxLayout* playableEntryLayout = nullptr;
   QVBoxLayout* hotkeyLayout = nullptr;
+  const sb::GroupHandle soundGroup;
 };
 
 #endif // SOUNDGROUPWIDGET_H

@@ -31,7 +31,6 @@ HotkeySoundboard::~HotkeySoundboard() {
 void HotkeySoundboard::setupSoundGroupContainerWidget() {
   soundGroupContainerWidget = new QWidget(this->ui->scrollArea);
   soundGroupFlowLayout = new FlowLayout(soundGroupContainerWidget);
-  soundGroupContainerWidget->setLayout(soundGroupFlowLayout);
 
   ui->scrollArea->setWidget(soundGroupContainerWidget);
   ui->scrollArea->setWidgetResizable(true);

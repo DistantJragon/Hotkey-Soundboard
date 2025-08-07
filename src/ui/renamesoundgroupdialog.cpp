@@ -50,5 +50,6 @@ void RenameSoundGroupDialog::accept() {
     QDialog::accept();
   } else {
     qWarning("Invalid sound group name. Cannot accept the dialog.");
+    QDialog::reject();
   }
 }

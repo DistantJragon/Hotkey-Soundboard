@@ -8,10 +8,7 @@ SoundGroupWidget::SoundGroupWidget(QWidget* parent, sb::GroupHandle soundGroup)
   connect(ui->nameLabel, &ClickableLabel::doubleClicked, this,
           [this]() { emit renameRequested(this->soundGroup); });
 
-  playableEntryLayout = new QVBoxLayout(ui->playableEntryFrame);
-  ui->playableEntryFrame->setLayout(playableEntryLayout);
   hotkeyLayout = new QVBoxLayout(ui->hotkeyFrame);
-  ui->hotkeyFrame->setLayout(hotkeyLayout);
 }
 
 SoundGroupWidget::~SoundGroupWidget() { delete ui; }

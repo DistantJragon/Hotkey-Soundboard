@@ -1,22 +1,37 @@
 #include "core/soundboard/bundleentry.h"
+#include "core/audio/audiotypes.h"
+#include <algorithm>
 
 namespace sb {
 
-BundleEntry::BundleEntry() : PlayableEntry(Type::Bundle) {}
-void BundleEntry::play(std::mt19937& randomEngine) {
+BundleEntry::BundleEntry() : PlayableEntry(Type::Bundle, "") {};
+BundleEntry::BundleEntry(const std::string& path)
+    : PlayableEntry(Type::Bundle, path) {}
+
+audio::SoundHandle BundleEntry::getHandleToPlay(std::mt19937& randomEngine) {
   if (entries.empty()) {
-    return;
+    return audio::ErrorSound;
   }
   if (randomPlay) {
-    playRandom(randomEngine);
+    return playRandom(randomEngine);
   } else {
-    playOrdered(randomEngine);
+    return playOrdered(randomEngine);
   }
 }
 
-void BundleEntry::playRandom(std::mt19937& randomEngine) {
-  if (entries.empty()) {
+void BundleEntry::rotateEntries(size_t firstIndex, size_t middleIndex,
+                                size_t lastIndex) {
+  if (lastIndex > entries.size() || middleIndex >= lastIndex ||
+      firstIndex >= middleIndex) {
     return;
+  }
+  std::rotate(entries.begin() + firstIndex, entries.begin() + middleIndex,
+              entries.begin() + lastIndex);
+}
+
+audio::SoundHandle BundleEntry::playRandom(std::mt19937& randomEngine) {
+  if (entries.empty()) {
+    return audio::ErrorSound;
   }
   std::uniform_int_distribution<unsigned int> dist(0, weightSum - 1);
   unsigned int randomValue = dist(randomEngine);
@@ -24,21 +39,23 @@ void BundleEntry::playRandom(std::mt19937& randomEngine) {
   for (const auto& entry : entries) {
     cumulativeWeight += entry->getWeight();
     if (randomValue < cumulativeWeight) {
-      entry->play(randomEngine);
+      return entry->getHandleToPlay(randomEngine);
       break;
     }
   }
+  return audio::ErrorSound;
 }
 
-void BundleEntry::playOrdered(std::mt19937& randomEngine) {
+audio::SoundHandle BundleEntry::playOrdered(std::mt19937& randomEngine) {
   if (entries.empty()) {
-    return;
+    return audio::ErrorSound;
   }
   if (orderTracker >= entries.size()) {
-    orderTracker = 0; // Reset to the beginning
+    orderTracker = 0;
   }
-  entries[orderTracker]->play(randomEngine);
+  audio::SoundHandle h = entries[orderTracker]->getHandleToPlay(randomEngine);
   orderTracker++;
+  return h;
 }
 
 } // namespace sb

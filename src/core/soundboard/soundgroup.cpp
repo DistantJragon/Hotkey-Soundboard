@@ -4,9 +4,11 @@ namespace sb {
 
 SoundGroup::SoundGroup(const GroupHandle handle, const std::string& name)
     : name(name), handle(handle) {
-  bundle.setName(name);
+  bundle.setName(name + " (Root Bundle)");
   bundle.setWeight(1);
 }
-void SoundGroup::play(std::mt19937& randomEngine) { bundle.play(randomEngine); }
+audio::SoundHandle SoundGroup::getHandleToPlay(std::mt19937& randomEngine) {
+  return bundle.getHandleToPlay(randomEngine);
+}
 
 } // namespace sb

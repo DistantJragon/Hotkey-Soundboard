@@ -36,6 +36,7 @@ void Soundboard::deleteSoundGroup(GroupHandle group) {
   }
   soundGroups.erase(group);
 }
+
 bool Soundboard::isValidGroup(GroupHandle group) const {
   return soundGroups.find(group) != soundGroups.end();
 }
@@ -52,12 +53,15 @@ SoundGroup& Soundboard::getSoundGroup(GroupHandle group) {
 }
 
 void Soundboard::playSoundGroup(GroupHandle group) {
+  if (!audioEngine) {
+    return;
+  }
   if (group == InvalidGroupHandle) {
     return;
   }
   auto it = soundGroups.find(group);
   if (it != soundGroups.end()) {
-    it->second.play(randomEngine);
+    audioEngine->play(it->second.getHandleToPlay(randomEngine));
   }
 }
 

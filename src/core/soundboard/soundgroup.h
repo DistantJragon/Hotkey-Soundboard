@@ -1,6 +1,7 @@
 #ifndef SOUNDGROUP_H
 #define SOUNDGROUP_H
 
+#include "core/audio/audiotypes.h"
 #include "core/soundboard/bundleentry.h"
 #include "core/soundboard/soundboardtypes.h"
 #include <cstring>
@@ -13,7 +14,7 @@ class SoundGroup {
 public:
   SoundGroup(const GroupHandle handle, const std::string& name);
   ~SoundGroup() = default;
-  void play(std::mt19937& randomEngine);
+  audio::SoundHandle getHandleToPlay(std::mt19937& randomEngine);
 
   const BundleEntry& getBundle() const { return bundle; }
   std::string getName() const { return name; }

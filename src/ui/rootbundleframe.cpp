@@ -14,6 +14,21 @@ RootBundleFrame::RootBundleFrame(QWidget* parent) : QFrame(parent) {
 #endif // HKSBNDEBUG
 }
 
+void RootBundleFrame::refreshPlayableEntries(
+    const std::vector<std::unique_ptr<sb::PlayableEntry>>& entries) {
+  // Clear the layout and re-add entries
+  while (QLayoutItem* item = entryLayout->takeAt(0)) {
+    delete item->widget();
+    delete item;
+  }
+  for (const auto& entry : entries) {
+    if (entry) {
+      auto* entryFrame = new PlayableEntryFrame(this);
+      entryLayout->addWidget(entryFrame);
+    }
+  }
+}
+
 void RootBundleFrame::dragEnterEvent(QDragEnterEvent* event) {
 
 #ifndef HKSBNDEBUG

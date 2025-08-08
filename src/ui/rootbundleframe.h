@@ -1,6 +1,7 @@
 #ifndef ROOTBUNDLEFRAME_H
 #define ROOTBUNDLEFRAME_H
 
+#include "core/soundboard/playableentry.h"
 #include <QFrame>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -9,6 +10,9 @@ class RootBundleFrame : public QFrame {
   Q_OBJECT
 public:
   RootBundleFrame(QWidget* parent = nullptr);
+
+  void refreshPlayableEntries(
+      const std::vector<std::unique_ptr<sb::PlayableEntry>>& entries);
 
 signals:
   void filesDropped(const QList<QUrl>& urls, int index);

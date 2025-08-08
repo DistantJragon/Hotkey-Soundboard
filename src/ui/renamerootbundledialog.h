@@ -4,15 +4,15 @@
 #include <QDialog>
 
 namespace Ui {
-class RenameSoundGroupDialog;
+class RenameRootBundleDialog;
 }
 
-class RenameSoundGroupDialog : public QDialog {
+class RenameRootBundleDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit RenameSoundGroupDialog(QWidget* parent = nullptr);
-  ~RenameSoundGroupDialog();
+  explicit RenameRootBundleDialog(QWidget* parent = nullptr);
+  ~RenameRootBundleDialog();
 
   QString getNameLineEditText() const;
   void setNameLineEditText(const std::string& text);
@@ -30,7 +30,7 @@ protected:
   void accept() override;
 
 private:
-  Ui::RenameSoundGroupDialog* ui;
+  Ui::RenameRootBundleDialog* ui;
   std::string currentName;
   bool validName = true;
 };

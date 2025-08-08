@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SoundGroupWidget</class>
- <widget class="QFrame" name="SoundGroupWidget">
+ <class>RootBundleControlWidget</class>
+ <widget class="QFrame" name="RootBundleControlWidget">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -71,7 +71,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>Rename sound group</string>
+         <string>Rename bundle</string>
         </property>
         <property name="toolTipDuration">
          <number>5</number>
@@ -83,7 +83,7 @@
          <enum>QFrame::Shadow::Plain</enum>
         </property>
         <property name="text">
-         <string notr="true">placeholder sound group name</string>
+         <string notr="true">placeholder bundle name</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
@@ -131,7 +131,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="deleteGroupButton">
+       <widget class="QPushButton" name="deleteRootBundleButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -151,7 +151,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Delete sound group</string>
+         <string>Delete bundle</string>
         </property>
         <property name="icon">
          <iconset theme="QIcon::ThemeIcon::EditDelete"/>
@@ -274,7 +274,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>hideButton</tabstop>
-  <tabstop>deleteGroupButton</tabstop>
+  <tabstop>deleteRootBundleButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

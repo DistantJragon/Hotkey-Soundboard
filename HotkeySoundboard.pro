@@ -21,15 +21,14 @@ SOURCES += \
     src/core/soundboard/playableentry.cpp \
     src/core/soundboard/soundboard.cpp \
     src/core/soundboard/soundfileentry.cpp \
-    src/core/soundboard/soundgroup.cpp \
     src/ui/clickablelabel.cpp \
     src/ui/flowlayout.cpp \
     src/ui/hotkeysoundboard.cpp \
     src/ui/playableentryframe.cpp \
-    src/ui/renamesoundgroupdialog.cpp \
+    src/ui/renamerootbundledialog.cpp \
     src/ui/rootbundleframe.cpp \
     src/ui/soundentrywidget.cpp \
-    src/ui/soundgroupwidget.cpp
+    src/ui/rootbundlecontrolwidget.cpp
 
 HEADERS += \
     src/adapters/qt/basicaudioengine.h \
@@ -41,23 +40,22 @@ HEADERS += \
     src/core/soundboard/playableentry.h \
     src/core/soundboard/soundboard.h \
     src/core/soundboard/soundfileentry.h \
-    src/core/soundboard/soundgroup.h \
     src/core/soundboard/exceptions.h \
     src/ui/clickablelabel.h \
     src/ui/flowlayout.h \
     src/ui/hotkeysoundboard.h \
     src/ui/playableentryframe.h \
-    src/ui/renamesoundgroupdialog.h \
+    src/ui/renamerootbundledialog.h \
     src/ui/rootbundleframe.h \
     src/ui/soundentrywidget.h \
     src/ui/soundgroupdefaults.h \
-    src/ui/soundgroupwidget.h
+    src/ui/rootbundlecontrolwidget.h
 
 FORMS += \
     src/forms/hotkeysoundboard.ui \
     src/forms/playableentryframe.ui \
-    src/forms/renamesoundgroupdialog.ui \
-    src/forms/soundgroupwidget.ui
+    src/forms/renamerootbundledialog.ui \
+    src/forms/rootbundlecontrolwidget.ui
 
 INCLUDEPATH += \
     $$PWD/src

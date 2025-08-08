@@ -1,5 +1,6 @@
 #include "ui/hotkeysoundboard.h"
-#include "core/soundboard/exceptions.h"
+#include "core/soundboard/bundleentry.h"
+#include "core/soundboard/playableentry.h"
 #include "core/soundboard/soundboardtypes.h"
 #include "ui/soundgroupdefaults.h"
 #include "ui_hotkeysoundboard.h"
@@ -9,213 +10,212 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
   engine = std::make_unique<sb::adapters::qt::BasicAudioEngine>();
   soundboard = std::make_unique<sb::Soundboard>(engine.get());
   ui->setupUi(this);
-  setupSoundGroupContainerWidget();
-  setupSoundGroupRenameDialog();
+  setupRootBundleContainerWidget();
+  setupRootBundleRenameDialog();
 #ifndef HKSBNDEBUG
   for (int i = 0; i < 10; ++i)
-    newSoundGroup();
+    newRootBundle();
 #endif // HKSBNDEBUG
 }
 
 HotkeySoundboard::~HotkeySoundboard() {
-  // TODO: Investigate possible double freeing of SoundGroupWidgets due to
-  // soundGroupWidgets and soundGroupContainerWidget
-  for (auto& pair : soundGroupWidgets) {
+  // TODO: Investigate possible double freeing of RootBundleControlWidgets due
+  // to RootBundleControlWidget map and child of rootBundleContainerWidget
+  for (auto& pair : rootBundleControlWidgets) {
     pair.second.setParent(nullptr);
   }
   delete ui;
-  delete soundGroupContainerWidget;
-  delete renameSoundGroupDialog;
+  delete rootBundleContainerWidget;
+  delete renameRootBundleDialog;
 }
 
-void HotkeySoundboard::setupSoundGroupContainerWidget() {
-  soundGroupContainerWidget = new QWidget(this->ui->scrollArea);
-  soundGroupFlowLayout = new FlowLayout(soundGroupContainerWidget);
+void HotkeySoundboard::setupRootBundleContainerWidget() {
+  rootBundleContainerWidget = new QWidget(this->ui->scrollArea);
+  rootBundleFlowLayout = new FlowLayout(rootBundleContainerWidget);
 
-  ui->scrollArea->setWidget(soundGroupContainerWidget);
+  ui->scrollArea->setWidget(rootBundleContainerWidget);
   ui->scrollArea->setWidgetResizable(true);
 }
 
-void HotkeySoundboard::setupSoundGroupRenameDialog() {
-  renameSoundGroupDialog = new RenameSoundGroupDialog(this);
-  connect(renameSoundGroupDialog,
-          &RenameSoundGroupDialog::renameDialogTextEdited, this,
-          &HotkeySoundboard::checkNewSoundGroupName);
+void HotkeySoundboard::setupRootBundleRenameDialog() {
+  renameRootBundleDialog = new RenameRootBundleDialog(this);
+  connect(renameRootBundleDialog,
+          &RenameRootBundleDialog::renameDialogTextEdited, this,
+          &HotkeySoundboard::checkNewRootBundleName);
 }
 
-bool HotkeySoundboard::isSoundGroupNameValid(const std::string& name) const {
+bool HotkeySoundboard::isRootBundleNameValid(const std::string& name) const {
   return name == SoundGroupDefaults::NAME ||
-         soundGroupNames.find(name) == soundGroupNames.end();
+         rootBundleNames.find(name) == rootBundleNames.end();
 }
 
-void HotkeySoundboard::newSoundGroup() {
-  sb::GroupHandle nextHandle = soundboard->getNextHandle();
-  auto result = soundGroupWidgets.try_emplace(
-      nextHandle, soundGroupContainerWidget,
-      soundboard->newSoundGroup(SoundGroupDefaults::NAME));
+void HotkeySoundboard::newRootBundle() {
+  sb::EntryHandle nextHandle = soundboard->getNextHandle();
+  auto result = rootBundleControlWidgets.try_emplace(
+      nextHandle, rootBundleContainerWidget,
+      soundboard->newBundle(SoundGroupDefaults::NAME));
   if (result.second) {
-    try {
-      const sb::SoundGroup& group =
-          soundboard->getSoundGroup(result.first->first);
-      SoundGroupWidget& newWidget = result.first->second;
-      connect(&newWidget, &SoundGroupWidget::renameRequested, this,
-              &HotkeySoundboard::openRenameSoundGroupDialog);
-      connect(&newWidget, &SoundGroupWidget::deleteRequested, this,
-              &HotkeySoundboard::deleteSoundGroup);
-      connect(&newWidget, &SoundGroupWidget::hideRequested, this,
-              &HotkeySoundboard::hideSoundGroup);
-      connect(&newWidget, &SoundGroupWidget::refreshRequested, this,
-              &HotkeySoundboard::refreshSoundGroupDisplay);
-      soundGroupFlowLayout->insertWidget(0, &newWidget);
-      newWidget.refreshSoundGroupDisplay(group);
-      newWidget.show();
-    } catch (const sb::exceptions::SoundGroupIdExists& e) {
-      qWarning("Failed to create a new sound group: %s", e.what());
-      soundGroupWidgets.erase(result.first->first);
+    RootBundleControlWidget& newWidget = result.first->second;
+    connect(&newWidget, &RootBundleControlWidget::renameRequested, this,
+            &HotkeySoundboard::openRenameRootBundleDialog);
+    connect(&newWidget, &RootBundleControlWidget::deleteRequested, this,
+            &HotkeySoundboard::deleteRootBundle);
+    connect(&newWidget, &RootBundleControlWidget::hideRequested, this,
+            &HotkeySoundboard::hideRootBundle);
+    connect(&newWidget, &RootBundleControlWidget::refreshRequested, this,
+            &HotkeySoundboard::refreshRootBundleDisplay);
+    rootBundleFlowLayout->insertWidget(0, &newWidget);
+    sb::BundleEntry* bundleEntry =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(nextHandle));
+    if (!bundleEntry) {
+      qWarning("Failed to retrieve bundle entry for handle '%d'.", nextHandle);
       return;
     }
+    newWidget.refreshRootBundleDisplay(*bundleEntry);
+    newWidget.show();
   } else {
     qWarning("Failed to create a new sound group. ID already exists.");
   }
 }
 
-void HotkeySoundboard::refreshSoundGroupDisplay(sb::GroupHandle soundGroup) {
-  if (!soundboard->isValidGroup(soundGroup)) {
+void HotkeySoundboard::refreshRootBundleDisplay(sb::EntryHandle entry) {
+  if (!soundboard->isValidEntry(entry)) {
     qWarning("Cannot refresh an invalid sound group.");
     return;
   }
-  auto it = soundGroupWidgets.find(soundGroup);
-  if (it == soundGroupWidgets.end()) {
-    qWarning("Failed to find sound group widget to refresh.");
+  auto it = rootBundleControlWidgets.find(entry);
+  if (it == rootBundleControlWidgets.end()) {
+    qWarning("Failed to find root bundle control widget to refresh.");
     return;
   }
-  try {
-    it->second.refreshSoundGroupDisplay(soundboard->getSoundGroup(soundGroup));
-  } catch (const sb::exceptions::MissingSoundGroup& e) {
-    qWarning("Sound group with handle '%d' is missing: %s", e.getHandle(),
-             e.what());
+  sb::BundleEntry* bundleEntry =
+      static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
+  if (!bundleEntry) {
+    qWarning("Failed to retrieve bundle entry for handle '%d'.", entry);
     return;
   }
+  it->second.refreshRootBundleDisplay(*bundleEntry);
+  return;
 }
 
-void HotkeySoundboard::renameSoundGroup(sb::GroupHandle soundGroup,
+void HotkeySoundboard::renameRootBundle(sb::EntryHandle entry,
                                         const std::string newName) {
-  if (!soundboard->isValidGroup(soundGroup)) {
-    qWarning("Cannot rename an invalid sound group.");
+  if (!soundboard->isValidEntry(entry)) {
+    qWarning("Cannot rename an invalid entry.");
     return;
   }
-  bool result = removeSoundGroupWidget(soundGroup);
+  bool result = removeRootBundleWidget(entry);
   if (!result) {
-    qWarning("Failed to remove sound group widget before renaming.");
+    qWarning("Failed to remove root bundle widget before renaming.");
     return;
   }
-  try {
-    const sb::SoundGroup& group = soundboard->getSoundGroup(soundGroup);
-    const std::string oldName = group.getName();
-    soundGroupNames.erase(oldName);
-    soundboard->renameSoundGroup(soundGroup, newName);
-    auto it = soundGroupWidgets.find(soundGroup);
-    if (it == soundGroupWidgets.end()) {
-      qWarning("Failed to find sound group widget after renaming.");
-      return;
-    }
-    SoundGroupWidget& widget = it->second;
-    soundGroupFlowLayout->insertWidget(soundGroupWidgetLowerBound(soundGroup),
-                                       &widget);
-    soundGroupNames.insert(newName);
-    widget.refreshSoundGroupDisplay(group);
-    widget.show();
-  } catch (const sb::exceptions::MissingSoundGroup& e) {
-    qWarning("Sound group with handle '%d' is missing: %s", e.getHandle(),
-             e.what());
+  const sb::BundleEntry* bundlePtr =
+      static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
+  if (!bundlePtr) {
+    qWarning("Failed to retrieve bundle entry for handle '%d'.", entry);
     return;
   }
+  const sb::BundleEntry& bundle = *bundlePtr;
+  const std::string oldName = bundle.getName();
+  rootBundleNames.erase(oldName);
+  soundboard->renameEntry(entry, newName);
+  auto it = rootBundleControlWidgets.find(entry);
+  if (it == rootBundleControlWidgets.end()) {
+    qWarning("Failed to find root bundle widget after renaming.");
+    return;
+  }
+  RootBundleControlWidget& widget = it->second;
+  rootBundleFlowLayout->insertWidget(rootBundleWidgetLowerBound(entry),
+                                     &widget);
+  rootBundleNames.insert(newName);
+  widget.refreshRootBundleDisplay(bundle);
+  widget.show();
 }
 
-void HotkeySoundboard::deleteSoundGroup(sb::GroupHandle soundGroup) {
-  if (!soundboard->isValidGroup(soundGroup)) {
+void HotkeySoundboard::deleteRootBundle(sb::EntryHandle rootBundle) {
+  if (!soundboard->isValidEntry(rootBundle)) {
     qWarning("Cannot delete an invalid sound group.");
     return;
   }
-  bool removeResult = removeSoundGroupWidget(soundGroup);
+  bool removeResult = removeRootBundleWidget(rootBundle);
   if (!removeResult) {
     qWarning("Failed to find sound group widget to delete.");
     return;
   }
-  soundGroupFlowLayout->invalidate();
-  int eraseResult = soundGroupWidgets.erase(soundGroup);
+  rootBundleFlowLayout->invalidate();
+  int eraseResult = rootBundleControlWidgets.erase(rootBundle);
   if (eraseResult == 0) {
     qWarning("Failed to remove sound group widget from the map.");
     return;
   }
-  soundboard->deleteSoundGroup(soundGroup);
+  soundboard->deleteEntry(rootBundle);
 }
 
-void HotkeySoundboard::hideSoundGroup(sb::GroupHandle soundGroup) {
-  if (!soundboard->isValidGroup(soundGroup)) {
+void HotkeySoundboard::hideRootBundle(sb::EntryHandle rootBundle) {
+  if (!soundboard->isValidEntry(rootBundle)) {
     qWarning("Cannot hide an invalid sound group.");
     return;
   }
-  auto it = soundGroupWidgets.find(soundGroup);
-  if (it == soundGroupWidgets.end()) {
+  auto it = rootBundleControlWidgets.find(rootBundle);
+  if (it == rootBundleControlWidgets.end()) {
     qWarning("Failed to find sound group widget to hide.");
     return;
   }
   it->second.hide();
-  soundGroupFlowLayout->invalidate();
+  rootBundleFlowLayout->invalidate();
 }
 
-void HotkeySoundboard::showSoundGroup(sb::GroupHandle soundGroup) {
-  if (!soundboard->isValidGroup(soundGroup)) {
+void HotkeySoundboard::showRootBundle(sb::EntryHandle rootBundle) {
+  if (!soundboard->isValidEntry(rootBundle)) {
     qWarning("Cannot show an invalid sound group.");
     return;
   }
-  auto it = soundGroupWidgets.find(soundGroup);
-  if (it == soundGroupWidgets.end()) {
+  auto it = rootBundleControlWidgets.find(rootBundle);
+  if (it == rootBundleControlWidgets.end()) {
     qWarning("Failed to find sound group widget to show.");
     return;
   }
   it->second.show();
-  soundGroupFlowLayout->invalidate();
+  rootBundleFlowLayout->invalidate();
 }
 
-void HotkeySoundboard::openRenameSoundGroupDialog(sb::GroupHandle soundGroup) {
-  if (!soundboard->isValidGroup(soundGroup)) {
+void HotkeySoundboard::openRenameRootBundleDialog(sb::EntryHandle rootBundle) {
+  if (!soundboard->isValidEntry(rootBundle)) {
     qWarning("Cannot open rename dialog for an invalid sound group.");
     return;
   }
-  if (!renameSoundGroupDialog) {
+  if (!renameRootBundleDialog) {
     qWarning("Rename dialog is not initialized.");
     return;
   }
-  try {
-    const sb::SoundGroup& group = soundboard->getSoundGroup(soundGroup);
-    renameSoundGroupDialog->setCurrentName(group.getName());
-    renameSoundGroupDialog->setValidName(true);
-    if (renameSoundGroupDialog->exec() == QDialog::Accepted) {
-      std::string newName =
-          renameSoundGroupDialog->getNameLineEditText().toStdString();
-      if (!isSoundGroupNameValid(newName)) {
-        qWarning("Invalid sound group name: '%s'.", newName.c_str());
-        return;
-      }
-      renameSoundGroup(soundGroup, newName);
-    } else {
-      qDebug("Rename dialog was canceled.");
-    }
-  } catch (const sb::exceptions::MissingSoundGroup& e) {
-    qWarning("Sound group with handle '%d' is missing: %s", e.getHandle(),
-             e.what());
+  const sb::BundleEntry* bundlePtr =
+      static_cast<const sb::BundleEntry*>(soundboard->getEntry(rootBundle));
+  if (!bundlePtr) {
+    qWarning("Failed to retrieve bundle entry for handle '%d'.", rootBundle);
     return;
+  }
+  const sb::BundleEntry& group = *bundlePtr;
+  renameRootBundleDialog->setCurrentName(group.getName());
+  renameRootBundleDialog->setValidName(true);
+  if (renameRootBundleDialog->exec() == QDialog::Accepted) {
+    std::string newName =
+        renameRootBundleDialog->getNameLineEditText().toStdString();
+    if (!isRootBundleNameValid(newName)) {
+      qWarning("Invalid sound group name: '%s'.", newName.c_str());
+      return;
+    }
+    renameRootBundle(rootBundle, newName);
+  } else {
+    qDebug("Rename dialog was canceled.");
   }
 }
 
-void HotkeySoundboard::checkNewSoundGroupName(const QString& name) {
-  renameSoundGroupDialog->setValidName(
-      isSoundGroupNameValid(name.toStdString()));
+void HotkeySoundboard::checkNewRootBundleName(const QString& name) {
+  renameRootBundleDialog->setValidName(
+      isRootBundleNameValid(name.toStdString()));
 }
 
-bool HotkeySoundboard::soundGroupNameCompare(const std::string& name1,
+bool HotkeySoundboard::rootBundleNameCompare(const std::string& name1,
                                              const std::string& name2) const {
   if (name1 == SoundGroupDefaults::NAME) {
     return true;
@@ -226,77 +226,78 @@ bool HotkeySoundboard::soundGroupNameCompare(const std::string& name1,
   }
 }
 
-int HotkeySoundboard::soundGroupWidgetLowerBound(
-    const sb::GroupHandle handle) const {
-  if (!soundboard->isValidGroup(handle)) {
+int HotkeySoundboard::rootBundleWidgetLowerBound(
+    const sb::EntryHandle handle) const {
+  if (!soundboard->isValidEntry(handle)) {
     return -1; // Invalid sound group
   }
-  try {
-    const sb::SoundGroup& group = soundboard->getSoundGroup(handle);
-    std::string name = group.getName();
-    if (name == SoundGroupDefaults::NAME) {
-      return 0; // Sound group with default name is always at the start
-    }
-    if (soundGroupFlowLayout->count() == 0) {
-      return 0; // No items in the layout, insert at the start
-    }
-    int left = 0;
-    int right = soundGroupFlowLayout->count();
-    while (left < right) {
-      int mid = left + (right - left) / 2;
-      QLayoutItem* item = soundGroupFlowLayout->itemAt(mid);
-      SoundGroupWidget* widget = static_cast<SoundGroupWidget*>(item->widget());
-      const std::string& otherName =
-          soundboard->getSoundGroup(widget->getSoundGroupHandle()).getName();
-      if (soundGroupNameCompare(otherName, name)) {
-        left = mid + 1;
-      } else {
-        right = mid;
-      }
-    }
-    return left;
-  } catch (const sb::exceptions::MissingSoundGroup& e) {
-    qWarning("Sound group with handle '%d' is missing: %s", e.getHandle(),
-             e.what());
-    return -1; // Handle missing sound group
+  const sb::PlayableEntry* entryPtr = soundboard->getEntry(handle);
+  if (!entryPtr) {
+    qWarning("Failed to retrieve bundle entry for handle '%d'.", handle);
+    return -1; // Handle not found
   }
+  if (rootBundleFlowLayout->count() == 0) {
+    return 0; // No items in the layout, insert at the start
+  }
+  std::string name = entryPtr->getName();
+  if (name == SoundGroupDefaults::NAME) {
+    return 0; // Sound group with default name is always at the start
+  }
+  int left = 0;
+  int right = rootBundleFlowLayout->count();
+  while (left < right) {
+    int mid = left + (right - left) / 2;
+    QLayoutItem* item = rootBundleFlowLayout->itemAt(mid);
+    RootBundleControlWidget* widget =
+        static_cast<RootBundleControlWidget*>(item->widget());
+    sb::PlayableEntry* entry =
+        soundboard->getEntry(widget->getRootBundleHandle());
+    const std::string& otherName = entry->getName();
+    if (rootBundleNameCompare(otherName, name)) {
+      left = mid + 1;
+    } else {
+      right = mid;
+    }
+  }
+  return left;
 }
 
-int HotkeySoundboard::soundGroupWidgetIndexOf(const sb::GroupHandle soundGroup,
+int HotkeySoundboard::rootBundleWidgetIndexOf(const sb::EntryHandle rootBundle,
                                               int from) const {
-  if (!soundGroup || from < 0 || from >= soundGroupFlowLayout->count()) {
+  if (!rootBundle || from < 0 || from >= rootBundleFlowLayout->count()) {
     return -1; // Invalid sound group or out of bounds
   }
-  for (int i = from; i < soundGroupFlowLayout->count(); ++i) {
-    QLayoutItem* item = soundGroupFlowLayout->itemAt(i);
+  for (int i = from; i < rootBundleFlowLayout->count(); ++i) {
+    QLayoutItem* item = rootBundleFlowLayout->itemAt(i);
     // Decision between comparing pointers or comparing handles
-    SoundGroupWidget* widget = static_cast<SoundGroupWidget*>(item->widget());
-    if (widget->getSoundGroupHandle() == soundGroup) {
+    RootBundleControlWidget* widget =
+        static_cast<RootBundleControlWidget*>(item->widget());
+    if (widget->getRootBundleHandle() == rootBundle) {
       return i;
     }
   }
   return -1; // Not found
 }
 
-bool HotkeySoundboard::removeSoundGroupWidget(
-    const sb::GroupHandle soundGroup) {
-  if (!soundboard->isValidGroup(soundGroup)) {
+bool HotkeySoundboard::removeRootBundleWidget(
+    const sb::EntryHandle rootBundle) {
+  if (!soundboard->isValidEntry(rootBundle)) {
     qWarning("Cannot remove an invalid sound group widget.");
     return false;
   }
-  auto it = soundGroupWidgets.find(soundGroup);
-  if (it == soundGroupWidgets.end()) {
+  auto it = rootBundleControlWidgets.find(rootBundle);
+  if (it == rootBundleControlWidgets.end()) {
     qWarning("Sound group widget not found in the map.");
     return false;
   }
-  SoundGroupWidget& widget = it->second;
-  int index = soundGroupWidgetIndexOf(soundGroup,
-                                      soundGroupWidgetLowerBound(soundGroup));
+  RootBundleControlWidget& widget = it->second;
+  int index = rootBundleWidgetIndexOf(rootBundle,
+                                      rootBundleWidgetLowerBound(rootBundle));
   if (index == -1) {
     qWarning("Sound group widget not found in the flow layout.");
     return false;
   }
-  QLayoutItem* item = soundGroupFlowLayout->takeAt(index);
+  QLayoutItem* item = rootBundleFlowLayout->takeAt(index);
   if (!item) {
     qWarning("Failed to take item from the flow layout.");
     return false;
@@ -305,7 +306,7 @@ bool HotkeySoundboard::removeSoundGroupWidget(
   widget.hide();
 #ifndef HKSBNDEBUG
   // Check if the widget is still in the QList of soundGroupFlowLayout
-  if (soundGroupWidgetIndexOf(soundGroup) != -1) {
+  if (rootBundleWidgetIndexOf(rootBundle) != -1) {
     qWarning("Widget was not removed from the FlowLayout.");
   }
 #endif // HKSBNDEBUG

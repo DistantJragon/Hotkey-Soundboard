@@ -1,29 +1,29 @@
-#include "ui/renamesoundgroupdialog.h"
-#include "ui_renamesoundgroupdialog.h"
+#include "ui/renamerootbundledialog.h"
+#include "ui_renamerootbundledialog.h"
 
-RenameSoundGroupDialog::RenameSoundGroupDialog(QWidget* parent)
-    : QDialog(parent), ui(new Ui::RenameSoundGroupDialog) {
+RenameRootBundleDialog::RenameRootBundleDialog(QWidget* parent)
+    : QDialog(parent), ui(new Ui::RenameRootBundleDialog) {
   ui->setupUi(this);
   connect(ui->nameLineEdit, &QLineEdit::textEdited, this,
-          &RenameSoundGroupDialog::onNameLineTextEdited);
+          &RenameRootBundleDialog::onNameLineTextEdited);
 }
 
-RenameSoundGroupDialog::~RenameSoundGroupDialog() { delete ui; }
+RenameRootBundleDialog::~RenameRootBundleDialog() { delete ui; }
 
-QString RenameSoundGroupDialog::getNameLineEditText() const {
+QString RenameRootBundleDialog::getNameLineEditText() const {
   return ui->nameLineEdit->text();
 }
 
-void RenameSoundGroupDialog::setNameLineEditText(const std::string& text) {
+void RenameRootBundleDialog::setNameLineEditText(const std::string& text) {
   ui->nameLineEdit->setText(QString::fromStdString(text));
 }
 
-void RenameSoundGroupDialog::setCurrentName(const std::string& name) {
+void RenameRootBundleDialog::setCurrentName(const std::string& name) {
   currentName = name;
   setNameLineEditText(name);
 }
 
-void RenameSoundGroupDialog::setValidName(bool valid) {
+void RenameRootBundleDialog::setValidName(bool valid) {
   validName = valid;
   if (valid) {
     ui->nameLineEdit->setStyleSheet("QLineEdit { border: 1px solid black; }");
@@ -32,7 +32,7 @@ void RenameSoundGroupDialog::setValidName(bool valid) {
   }
 }
 
-void RenameSoundGroupDialog::onNameLineTextEdited(const QString& name) {
+void RenameRootBundleDialog::onNameLineTextEdited(const QString& name) {
   if (getNameLineEditText().toStdString() == currentName) {
     setValidName(true); // No change, valid by default
     return;
@@ -40,7 +40,7 @@ void RenameSoundGroupDialog::onNameLineTextEdited(const QString& name) {
   emit renameDialogTextEdited(name);
 }
 
-void RenameSoundGroupDialog::accept() {
+void RenameRootBundleDialog::accept() {
   if (getNameLineEditText().toStdString() == currentName) {
     // No change, accept without validation
     QDialog::reject();

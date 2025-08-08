@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RenameSoundGroupDialog</class>
- <widget class="QDialog" name="RenameSoundGroupDialog">
+  <class>RenameRootBundleDialog</class>
+ <widget class="QDialog" name="RenameRootBundleDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Rename Sound Group</string>
+   <string>Rename Root Bundle</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -43,7 +43,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>RenameSoundGroupDialog</receiver>
+   <receiver>RenameRootBundleDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -59,7 +59,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>RenameSoundGroupDialog</receiver>
+   <receiver>RenameRootBundleDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

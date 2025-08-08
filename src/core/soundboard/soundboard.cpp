@@ -1,5 +1,6 @@
 #include "core/soundboard/soundboard.h"
 #include "core/soundboard/bundleentry.h"
+#include "core/soundboard/soundfileentry.h"
 
 namespace sb {
 
@@ -58,7 +59,7 @@ EntryHandle Soundboard::newSoundFile(std::filesystem::path path,
     return InvalidEntryHandle;
   }
   auto result = entries.try_emplace(
-      nextHandle, std::make_unique<SoundFileEntry>(soundHandle, path.string()));
+      nextHandle, std::make_unique<SoundFileEntry>(nextHandle, parentHandle, soundHandle, path.string()));
   if (!result.second) {
     return InvalidEntryHandle;
   }

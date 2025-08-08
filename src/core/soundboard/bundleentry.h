@@ -2,19 +2,23 @@
 #define BUNDLEENTRY_H
 
 #include "core/audio/audiotypes.h"
-#include "core/soundboard/playableentry.h"
-#include <memory>
+#include "core/soundboard/containerentry.h"
 #include <vector>
 
 namespace sb {
 
-class BundleEntry : public PlayableEntry {
+class BundleEntry : public ContainerEntry {
 public:
-  BundleEntry();
-  BundleEntry(const std::string& path);
+  BundleEntry(EntryHandle handle);
+  BundleEntry(EntryHandle handle, EntryHandle parentHandle);
   audio::SoundHandle getHandleToPlay(std::mt19937& randomEngine) override;
 
-  /*! \brief Slides entries within the bundle.
+  void addChild(size_t index, PlayableEntry* entry) override;
+  void setChildWeight(size_t index, unsigned int weight) override;
+  void removeChild(size_t index) override;
+  void removeChild(PlayableEntry* entry) override;
+
+  /*! \brief Rotates entries within the bundle.
    *
    * This function moves entries [firstIndex, middleIndex) to lastIndex and
    * [middleIndex, lastIndex) to firstIndex.]
@@ -24,16 +28,7 @@ public:
    */
   void rotateEntries(size_t firstIndex, size_t middleIndex, size_t lastIndex);
 
-  void setChildWeight(size_t index, unsigned int weight) {
-    if (index < entries.size()) {
-      weightSum += weight - entries[index]->getWeight();
-      entries[index]->setWeight(weight);
-    }
-  }
-
-  const std::vector<std::unique_ptr<PlayableEntry>>& getEntries() const {
-    return entries;
-  }
+  const std::vector<PlayableEntry*> getEntries() const { return children; }
   bool isRandomPlay() const { return randomPlay; }
   unsigned int getCategory() const { return category; }
   unsigned int getWeightSum() const { return weightSum; }
@@ -41,7 +36,6 @@ public:
   void setRandomPlay(bool random) { randomPlay = random; }
 
 private:
-  std::vector<std::unique_ptr<PlayableEntry>> entries;
   unsigned int category = 0;
   unsigned int weightSum = 0;
   unsigned int orderTracker = 0;

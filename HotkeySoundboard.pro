@@ -17,6 +17,7 @@ SOURCES += \
     main.cpp \
     src/adapters/qt/basicaudioengine.cpp \
     src/core/soundboard/bundleentry.cpp \
+    src/core/soundboard/containerentry.cpp \
     src/core/soundboard/playableentry.cpp \
     src/core/soundboard/soundboard.cpp \
     src/core/soundboard/soundfileentry.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     src/core/audio/iaudioengine.h \
     src/core/hotkey/ihotkeymanager.h \
     src/core/soundboard/bundleentry.h \
+    src/core/soundboard/containerentry.h \
     src/core/soundboard/playableentry.h \
     src/core/soundboard/soundboard.h \
     src/core/soundboard/soundfileentry.h \

@@ -3,13 +3,17 @@
 
 namespace sb {
 
-SoundFileEntry::SoundFileEntry(const audio::SoundHandle& soundHandle,
+SoundFileEntry::SoundFileEntry(EntryHandle handle, EntryHandle parentHandle,
+                               audio::SoundHandle soundHandle,
                                const std::string& path)
-    : PlayableEntry(Type::SoundFile, path), soundHandle(soundHandle) {
-  if (soundHandle == audio::ErrorSound) {
-    valid = false;
-    weight = 0;
+    : PlayableEntry(Type::SoundFile, handle, parentHandle),
+      soundHandle(soundHandle) {
+  if (parentHandle != InvalidEntryHandle && soundHandle != audio::ErrorSound &&
+      handle != InvalidEntryHandle) {
+    this->valid = true;
   }
+  this->setPath(path);
+  this->setName(path);
 }
 
 audio::SoundHandle SoundFileEntry::getHandleToPlay(std::mt19937& randomEngine) {

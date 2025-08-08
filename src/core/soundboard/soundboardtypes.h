@@ -3,8 +3,8 @@
 
 namespace sb {
 
-using GroupHandle = unsigned int;
-static constexpr GroupHandle InvalidGroupHandle = static_cast<GroupHandle>(-1);
+using EntryHandle = unsigned int;
+static constexpr EntryHandle InvalidEntryHandle = static_cast<EntryHandle>(-1);
 
 } // namespace sb
 

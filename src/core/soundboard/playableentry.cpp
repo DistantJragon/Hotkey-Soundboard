@@ -2,9 +2,12 @@
 
 namespace sb {
 
-PlayableEntry::PlayableEntry(Type type) : type(type) {}
+PlayableEntry::PlayableEntry(Type type, EntryHandle handle,
+                             EntryHandle parentHandle)
+    : type(type), handle(handle), parentHandle(parentHandle) {}
 
-PlayableEntry::PlayableEntry(Type type, const std::string& path)
-    : type(type), path(path) {}
+bool PlayableEntry::isContainerType(Type type) {
+  return (static_cast<int>(type) & (1 << 2)) != 0;
+}
 
 } // namespace sb

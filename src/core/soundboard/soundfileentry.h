@@ -8,8 +8,8 @@ namespace sb {
 
 class SoundFileEntry : public PlayableEntry {
 public:
-  SoundFileEntry(const audio::SoundHandle& soundHandle,
-                 const std::string& path = "");
+  SoundFileEntry(EntryHandle handle, EntryHandle parentHandle,
+                 audio::SoundHandle soundHandle, const std::string& path = "");
   audio::SoundHandle getHandleToPlay(std::mt19937& randomEngine) override;
 
 private:

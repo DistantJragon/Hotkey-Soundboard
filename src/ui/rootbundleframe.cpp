@@ -1,5 +1,5 @@
 #include "rootbundleframe.h"
-#include <QDragEnterEvent>
+#include <QLayoutItem>
 #include <QMimeData>
 
 #ifndef HKSBNDEBUG
@@ -8,22 +8,23 @@
 
 RootBundleFrame::RootBundleFrame(QWidget* parent) : QFrame(parent) {
   entryLayout = new QVBoxLayout(this);
-#ifndef HKSBNDEBUG
-  for (int i = 0; i < 3; ++i)
-    entryLayout->addWidget(new PlayableEntryFrame(this));
-#endif // HKSBNDEBUG
 }
 
-void RootBundleFrame::refreshPlayableEntries(
-    const std::vector<std::unique_ptr<sb::PlayableEntry>>& entries) {
+void RootBundleFrame::refreshChildrenDisplay(
+    const std::vector<sb::PlayableEntry*>& children) {
   // Clear the layout and re-add entries
+  removeDragDivider();
   while (QLayoutItem* item = entryLayout->takeAt(0)) {
-    delete item->widget();
+    if (QWidget* itemWidget = item->widget()) {
+      delete itemWidget;
+    }
     delete item;
   }
-  for (const auto& entry : entries) {
+  for (const auto& entry : children) {
     if (entry) {
-      auto* entryFrame = new PlayableEntryFrame(this);
+      auto* entryFrame = new PlayableEntryFrame(this, entry);
+      connect(entryFrame, &PlayableEntryFrame::playRequested, this,
+              &RootBundleFrame::playRequested);
       entryLayout->addWidget(entryFrame);
     }
   }
@@ -62,16 +63,7 @@ void RootBundleFrame::dragEnterEvent(QDragEnterEvent* event) {
 
 void RootBundleFrame::dragMoveEvent(QDragMoveEvent* event) {
   int index = positionToIndex(event->position().y());
-  if (dividerIndex != index) {
-    if (dividerIndex >= 0) {
-      QLayoutItem* dividerItem = entryLayout->takeAt(dividerIndex);
-      entryLayout->insertItem(index, dividerItem);
-    } else {
-      int space = entryLayout->count() ? 5 : 0;
-      entryLayout->insertSpacing(index, space);
-    }
-    dividerIndex = index;
-  }
+  moveDragDivider(index);
 }
 
 void RootBundleFrame::dragLeaveEvent(QDragLeaveEvent* event) {
@@ -83,13 +75,14 @@ void RootBundleFrame::dropEvent(QDropEvent* event) {
   if (event->mimeData()->hasUrls()) {
     QList<QUrl> urls = event->mimeData()->urls();
     int index = positionToIndex(event->position().y());
+    removeDragDivider();
     qDebug("Files dropped at index: %d", index);
     emit filesDropped(urls, index);
     event->acceptProposedAction();
   } else {
+    removeDragDivider();
     event->ignore();
   }
-  removeDragDivider();
 }
 int RootBundleFrame::positionToIndex(int yPos) const {
   if (!entryLayout) {
@@ -121,10 +114,27 @@ int RootBundleFrame::positionToIndex(int yPos) const {
   }
   return index;
 }
+
 void RootBundleFrame::removeDragDivider() {
   if (dividerIndex >= 0) {
     QLayoutItem* dividerItem = entryLayout->takeAt(dividerIndex);
     delete dividerItem;
     dividerIndex = -1;
   }
+}
+
+void RootBundleFrame::moveDragDivider(int index) {
+  if (!entryLayout) {
+    return;
+  }
+  if (index == dividerIndex) {
+    return;
+  }
+  removeDragDivider();
+  if (index < 0 || index > entryLayout->count()) {
+    return;
+  }
+  int space = entryLayout->count() ? 5 : 0;
+  entryLayout->insertSpacing(index, space);
+  dividerIndex = index;
 }

@@ -8,6 +8,12 @@ RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,
 
   connect(ui->nameLabel, &ClickableLabel::doubleClicked, this,
           [this]() { emit renameRequested(this->entry); });
+  connect(ui->rootBundleFrame, &RootBundleFrame::filesDropped, this,
+          [this](const QList<QUrl>& urls, int index) {
+            emit filesDropped(this->entry, urls, index);
+          });
+  connect(ui->rootBundleFrame, &RootBundleFrame::playRequested, this,
+          &RootBundleControlWidget::playRequested);
 
   hotkeyLayout = new QVBoxLayout(ui->hotkeyFrame);
 }
@@ -18,5 +24,6 @@ void RootBundleControlWidget::refreshRootBundleDisplay(
     const sb::BundleEntry& entry) {
   ui->nameLabel->setText(QString::fromStdString(entry.getName()));
   ui->randomPlayCheckBox->setChecked(entry.isRandomPlay());
+  ui->rootBundleFrame->refreshChildrenDisplay(entry.getChildren());
   this->updateGeometry();
 }

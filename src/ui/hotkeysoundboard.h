@@ -25,11 +25,14 @@ public:
   bool isRootBundleNameValid(const std::string& name) const;
 
 public slots:
+  void addEntriesFromFiles(sb::EntryHandle entry, const QList<QUrl>& urls,
+                           int index = -1);
   void checkNewRootBundleName(const QString& name);
   void deleteRootBundle(sb::EntryHandle entry);
   void hideRootBundle(sb::EntryHandle entry);
   void newRootBundle();
   void openRenameRootBundleDialog(sb::EntryHandle entry);
+  void playEntry(sb::EntryHandle entry);
   void refreshRootBundleDisplay(sb::EntryHandle entry);
   void renameRootBundle(sb::EntryHandle entry, const std::string newName);
   void showRootBundle(sb::EntryHandle entry);

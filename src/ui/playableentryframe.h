@@ -12,10 +12,12 @@ class PlayableEntryFrame : public QFrame {
   Q_OBJECT
 
 public:
-  explicit PlayableEntryFrame(
-      QWidget* parent = nullptr,
-      std::unique_ptr<sb::PlayableEntry> entry = nullptr);
+  explicit PlayableEntryFrame(QWidget* parent = nullptr,
+                              sb::PlayableEntry* entry = nullptr);
   ~PlayableEntryFrame();
+
+signals:
+  void playRequested(sb::EntryHandle entry);
 
 private:
   Ui::PlayableEntryFrame* ui;

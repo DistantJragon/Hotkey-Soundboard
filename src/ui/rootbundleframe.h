@@ -2,6 +2,7 @@
 #define ROOTBUNDLEFRAME_H
 
 #include "core/soundboard/playableentry.h"
+#include <QDragEnterEvent>
 #include <QFrame>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -11,11 +12,11 @@ class RootBundleFrame : public QFrame {
 public:
   RootBundleFrame(QWidget* parent = nullptr);
 
-  void refreshPlayableEntries(
-      const std::vector<std::unique_ptr<sb::PlayableEntry>>& entries);
+  void refreshChildrenDisplay(const std::vector<sb::PlayableEntry*>& children);
 
 signals:
   void filesDropped(const QList<QUrl>& urls, int index);
+  void playRequested(sb::EntryHandle entry);
 
 protected:
   void dragEnterEvent(QDragEnterEvent* event) override;
@@ -36,6 +37,13 @@ private:
    * not set.
    */
   int positionToIndex(int yPos) const;
+
+  /*!
+   * \brief Moves the drag divider to a new index in the layout.
+   * Indexing does not include the drag divider itself if it exists.
+   * \param index The new index for the drag divider.
+   */
+  void moveDragDivider(int index);
 
   /*!
    * \brief Removes the drag divider from the layout.

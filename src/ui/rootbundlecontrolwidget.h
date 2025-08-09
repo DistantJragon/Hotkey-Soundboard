@@ -5,6 +5,8 @@
 #include "core/soundboard/soundboardtypes.h"
 #include "qboxlayout.h"
 #include <QFrame>
+#include <QList>
+#include <QUrl>
 
 namespace Ui {
 class RootBundleControlWidget;
@@ -25,7 +27,10 @@ public:
 
 signals:
   void deleteRequested(sb::EntryHandle entry);
+  void filesDropped(sb::EntryHandle entry, const QList<QUrl>& urls,
+                    int index = -1);
   void hideRequested(sb::EntryHandle entry);
+  void playRequested(sb::EntryHandle entry);
   void refreshRequested(sb::EntryHandle entry);
   void renameRequested(sb::EntryHandle entry);
 

@@ -63,7 +63,7 @@ public:
    * \param parent The handle of the parent entry.
    * \param index The index of the entry to delete in the parent's list.
    */
-  void deleteEntryFromParent(EntryHandle parent, size_t index);
+  void deleteEntryViaParent(EntryHandle parent, size_t index);
 
   /*!
    * \brief Checks if an entry exists in the soundboard.
@@ -92,6 +92,14 @@ private:
   std::mt19937 randomEngine{std::random_device{}()};
   sb::audio::IAudioEngine* const audioEngine = nullptr;
   EntryHandle nextHandle = 0;
+
+  /*!
+   * \brief Deletes an entry from the soundboard, including its children.
+   * This function does not handle removing the entry from its parent's
+   * children list if the entry has a parent.
+   * \param entry The handle of the entry to delete.
+   */
+  void deleteEntryAndChildren(EntryHandle entry);
 };
 
 } // namespace sb

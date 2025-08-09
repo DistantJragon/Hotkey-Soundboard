@@ -59,8 +59,10 @@ EntryHandle Soundboard::newSoundFile(std::filesystem::path path,
     return InvalidEntryHandle;
   }
   auto result = entries.try_emplace(
-      nextHandle, std::make_unique<SoundFileEntry>(nextHandle, parentHandle, soundHandle, path.string()));
+      nextHandle, std::make_unique<SoundFileEntry>(nextHandle, parentHandle,
+                                                   soundHandle, path.string()));
   if (!result.second) {
+    audioEngine->unload(soundHandle);
     return InvalidEntryHandle;
   }
   result.first->second->setName(name);
@@ -97,10 +99,10 @@ void Soundboard::deleteEntry(EntryHandle entry) {
       parentEntry.removeChild(it->second.get());
     }
   }
-  entries.erase(entry);
+  deleteEntryAndChildren(entry);
 }
 
-void Soundboard::deleteEntryFromParent(EntryHandle parent, size_t index) {
+void Soundboard::deleteEntryViaParent(EntryHandle parent, size_t index) {
   if (parent == InvalidEntryHandle) {
     return;
   }
@@ -110,7 +112,12 @@ void Soundboard::deleteEntryFromParent(EntryHandle parent, size_t index) {
     return;
   }
   auto& parentEntry = static_cast<ContainerEntry&>(*it->second);
+  PlayableEntry* entryToDelete = parentEntry.getChildren().at(index);
   parentEntry.removeChild(index);
+  if (!entryToDelete) {
+    return;
+  }
+  deleteEntryAndChildren(entryToDelete->getHandle());
 }
 
 bool Soundboard::isValidEntry(EntryHandle entry) const {
@@ -139,6 +146,26 @@ void Soundboard::playEntry(EntryHandle entry) {
   if (it != entries.end()) {
     audioEngine->play(it->second->getHandleToPlay(randomEngine));
   }
+}
+
+void Soundboard::deleteEntryAndChildren(EntryHandle entry) {
+  if (entry == InvalidEntryHandle) {
+    return;
+  }
+  auto it = entries.find(entry);
+  if (it == entries.end()) {
+    return;
+  }
+  if (PlayableEntry::isContainerType(it->second->type)) {
+    auto& container = static_cast<ContainerEntry&>(*it->second);
+    for (const auto& child : container.getChildren()) {
+      deleteEntryAndChildren(child->getHandle());
+    }
+  } else if (it->second->type == PlayableEntry::Type::SoundFile) {
+    auto& soundFileEntry = static_cast<SoundFileEntry&>(*it->second);
+    audioEngine->unload(soundFileEntry.getHandleToPlay(randomEngine));
+  }
+  entries.erase(it);
 }
 
 } // namespace sb

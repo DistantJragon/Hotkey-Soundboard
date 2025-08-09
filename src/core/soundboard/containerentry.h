@@ -14,6 +14,7 @@ public:
   virtual void setChildWeight(size_t index, unsigned int weight) = 0;
   virtual void removeChild(size_t index) = 0;
   virtual void removeChild(PlayableEntry* entry) = 0;
+  const std::vector<PlayableEntry*>& getChildren() const { return children; }
 
 protected:
   std::vector<PlayableEntry*> children;

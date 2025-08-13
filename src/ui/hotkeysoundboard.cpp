@@ -9,6 +9,7 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
   engine = std::make_unique<sb::adapters::qt::BasicAudioEngine>();
   soundboard = std::make_unique<sb::Soundboard>(engine.get());
+  hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>(this);
   ui->setupUi(this);
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();

@@ -1,7 +1,12 @@
 #ifndef HOTKEYSOUNDBOARD_H
 #define HOTKEYSOUNDBOARD_H
 
-#include "adapters/qt/basicaudioengine.h"
+#include "adapters/qt/audio/basicaudioengine.h"
+#ifdef Q_OS_WIN
+#include "adapters/qt/hotkey/winhotkeymanager.h"
+#else
+// TODO: D-Bus
+#endif // Q_OS_WIN
 #include "core/soundboard/soundboard.h"
 #include "core/soundboard/soundboardtypes.h"
 #include "ui/flowlayout.h"
@@ -40,6 +45,11 @@ public slots:
 private:
   Ui::HotkeySoundboard* ui;
   std::unique_ptr<sb::adapters::qt::BasicAudioEngine> engine;
+#ifdef Q_OS_WIN
+  std::unique_ptr<sb::adapters::qt::WinHotkeyManager> hotkeyManager;
+#else
+  // TODO: D-Bus
+#endif // Q_OS_WIN
   std::unique_ptr<sb::Soundboard> soundboard;
   QWidget* rootBundleContainerWidget = nullptr;
   FlowLayout* rootBundleFlowLayout = nullptr;

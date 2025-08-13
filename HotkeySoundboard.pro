@@ -15,7 +15,7 @@ ReleaseBuild {
 
 SOURCES += \
     main.cpp \
-    src/adapters/qt/basicaudioengine.cpp \
+    src/adapters/qt/audio/basicaudioengine.cpp \
     src/core/soundboard/bundleentry.cpp \
     src/core/soundboard/containerentry.cpp \
     src/core/soundboard/playableentry.cpp \
@@ -31,7 +31,7 @@ SOURCES += \
     src/ui/rootbundlecontrolwidget.cpp
 
 HEADERS += \
-    src/adapters/qt/basicaudioengine.h \
+    src/adapters/qt/audio/basicaudioengine.h \
     src/core/audio/audiotypes.h \
     src/core/audio/iaudioengine.h \
     src/core/hotkey/ihotkeymanager.h \
@@ -59,6 +59,16 @@ FORMS += \
 
 INCLUDEPATH += \
     $$PWD/src
+
+win32:{
+
+LIBS += -luser32
+
+SOURCES += \
+    src/adapters/qt/hotkey/winhotkeymanager.cpp
+HEADERS += \
+    src/adapters/qt/hotkey/winhotkeymanager.h
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

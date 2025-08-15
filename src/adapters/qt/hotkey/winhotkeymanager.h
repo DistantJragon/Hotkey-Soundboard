@@ -33,6 +33,12 @@ public:
   bool nativeEventFilter(const QByteArray& eventType, void* message,
                          qintptr* result) override;
 
+#ifndef HKSBNDEBUG
+  std::unordered_map<hotkey::HotkeyHandle, hotkey::Hotkey>& getHotkeys() {
+    return hotkeys;
+  }
+#endif // HKSBNDEBUG
+
 private:
   std::unordered_map<hotkey::HotkeyHandle, hotkey::Hotkey> hotkeys;
   hotkey::HotkeyHandle nextHandle = 0;

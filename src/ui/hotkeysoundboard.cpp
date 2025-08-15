@@ -8,14 +8,23 @@
 HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
   engine = std::make_unique<sb::adapters::qt::BasicAudioEngine>();
-  soundboard = std::make_unique<sb::Soundboard>(engine.get());
   hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>(this);
+  soundboard = std::make_unique<sb::Soundboard>(engine.get());
   ui->setupUi(this);
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();
 #ifndef HKSBNDEBUG
   for (int i = 0; i < 10; ++i)
     newRootBundle();
+  sb::hotkey::Hotkey hk;
+  hk.nativeModifiers = 0x0004; // SHIFT
+  hk.nativeKey = 0x42;         // B
+  hk.callback = [this](void* userData) {
+    qDebug("Hotkey pressed!");
+    newRootBundle();
+  };
+  hk.humanReadable = "Shift+B";
+  sb::hotkey::HotkeyHandle hkHandle = hotkeyManager->registerHotkey(hk);
 #endif // HKSBNDEBUG
 }
 

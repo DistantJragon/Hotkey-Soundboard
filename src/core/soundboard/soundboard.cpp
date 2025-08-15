@@ -4,7 +4,7 @@
 
 namespace sb {
 
-Soundboard::Soundboard(sb::audio::IAudioEngine* audioEngine)
+Soundboard::Soundboard(audio::IAudioEngine* audioEngine)
     : audioEngine(audioEngine) {}
 
 EntryHandle Soundboard::newBundle(const std::string& name) {

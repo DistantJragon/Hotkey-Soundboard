@@ -33,7 +33,6 @@ WinHotkeyManager::registerHotkey(const hotkey::Hotkey& hotkey) {
 
   if (!result.second) {
     // Handle already exists, unregister the hotkey
-    UnregisterHotKey(nullptr, h);
     return hotkey::InvalidHotkeyHandle;
   }
 

@@ -4,7 +4,8 @@
 namespace sb::hotkey {
 
 using HotkeyHandle = unsigned int;
-static constexpr HotkeyHandle InvalidHotkeyHandle = 0;
+static constexpr HotkeyHandle InvalidHotkeyHandle =
+    static_cast<HotkeyHandle>(-1);
 
 } // namespace sb::hotkey
 

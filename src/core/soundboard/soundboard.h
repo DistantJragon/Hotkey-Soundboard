@@ -90,7 +90,7 @@ public:
 private:
   std::unordered_map<EntryHandle, std::unique_ptr<PlayableEntry>> entries;
   std::mt19937 randomEngine{std::random_device{}()};
-  sb::audio::IAudioEngine* const audioEngine = nullptr;
+  audio::IAudioEngine* const audioEngine = nullptr;
   EntryHandle nextHandle = 0;
 
   /*!

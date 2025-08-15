@@ -19,7 +19,7 @@ class Hotkey {
 public:
   Hotkey() = default;
   Hotkey(const HotkeyHandle& handle) : handle(handle) {}
-  Hotkey(const Hotkey& other, const HotkeyHandle& handle)
+  Hotkey(const Hotkey& other, HotkeyHandle handle)
       : humanReadable(other.humanReadable),
         portableModifiers(other.portableModifiers),
         portableKey(other.portableKey), nativeModifiers(other.nativeModifiers),

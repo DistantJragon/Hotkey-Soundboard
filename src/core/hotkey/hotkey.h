@@ -38,6 +38,7 @@ public:
   void* userData = nullptr;
 
   const HotkeyHandle handle = InvalidHotkeyHandle;
+  bool active = false;
 };
 
 } // namespace sb::hotkey

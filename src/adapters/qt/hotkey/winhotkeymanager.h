@@ -16,10 +16,13 @@ public:
   ~WinHotkeyManager() override;
 
   hotkey::HotkeyHandle registerHotkey(const hotkey::Hotkey& hotkey) override;
-
   void unregisterHotkey(hotkey::HotkeyHandle handle) override;
-
   void unregisterAllHotkeys() override;
+
+  void activateHotkey(hotkey::HotkeyHandle handle) override;
+  void deactivateHotkey(hotkey::HotkeyHandle handle) override;
+  void activateAllHotkeys() override;
+  void deactivateAllHotkeys() override;
 
   void manualTriggerHotkey(hotkey::HotkeyHandle handle) override;
 
@@ -28,7 +31,9 @@ public:
   hotkey::HotkeyHandle setUserData(hotkey::HotkeyHandle handle,
                                    void* userData) override;
 
-  hotkey::HotkeyHandle getNextHandle() override { return nextHandle++; }
+  hotkey::HotkeyHandle getNextHandle() override { return nextHandle; }
+
+  const hotkey::Hotkey* getHotkey(hotkey::HotkeyHandle handle) const override;
 
   bool nativeEventFilter(const QByteArray& eventType, void* message,
                          qintptr* result) override;

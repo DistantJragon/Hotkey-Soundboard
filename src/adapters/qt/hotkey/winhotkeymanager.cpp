@@ -23,8 +23,8 @@ WinHotkeyManager::registerHotkey(const hotkey::Hotkey& hotkey) {
     return hotkey::InvalidHotkeyHandle;
   }
 
-  // RegisterHotKey can't accept a handle greater than 0xBFFF
-  if (nextHandle >= static_cast<hotkey::HotkeyHandle>(0xBFFF)) {
+  // RegisterHotKey reserves handles past 0xBFFF for shared DLLs
+  if (nextHandle > static_cast<hotkey::HotkeyHandle>(0xBFFF)) {
     return hotkey::InvalidHotkeyHandle;
   }
   hotkey::HotkeyHandle h = nextHandle;
@@ -41,8 +41,8 @@ WinHotkeyManager::registerHotkey(const hotkey::Hotkey& hotkey) {
     return hotkey::InvalidHotkeyHandle;
   }
 
+  result.first->second.active = true;
   nextHandle++;
-
   return h;
 }
 
@@ -62,6 +62,52 @@ void WinHotkeyManager::unregisterAllHotkeys() {
   nextHandle = 0;
 }
 
+void WinHotkeyManager::activateHotkey(hotkey::HotkeyHandle handle) {
+  auto it = hotkeys.find(handle);
+  if (it == hotkeys.end())
+    return;
+
+  if (it->second.active)
+    return;
+
+  if (RegisterHotKey(nullptr, handle, it->second.nativeModifiers,
+                     it->second.nativeKey)) {
+    it->second.active = true;
+  }
+}
+
+void WinHotkeyManager::deactivateHotkey(hotkey::HotkeyHandle handle) {
+  auto it = hotkeys.find(handle);
+  if (it == hotkeys.end())
+    return;
+
+  if (!it->second.active)
+    return;
+
+  UnregisterHotKey(nullptr, handle);
+  it->second.active = false;
+}
+
+void WinHotkeyManager::activateAllHotkeys() {
+  for (auto& pair : hotkeys) {
+    if (!pair.second.active) {
+      if (RegisterHotKey(nullptr, pair.first, pair.second.nativeModifiers,
+                         pair.second.nativeKey)) {
+        pair.second.active = true;
+      }
+    }
+  }
+}
+
+void WinHotkeyManager::deactivateAllHotkeys() {
+  for (auto& pair : hotkeys) {
+    if (pair.second.active) {
+      UnregisterHotKey(nullptr, pair.first);
+      pair.second.active = false;
+    }
+  }
+}
+
 void WinHotkeyManager::manualTriggerHotkey(hotkey::HotkeyHandle handle) {
   auto it = hotkeys.find(handle);
   if (it == hotkeys.end())
@@ -78,6 +124,15 @@ void WinHotkeyManager::manualTriggerHotkey(hotkey::HotkeyHandle handle) {
         }
       },
       Qt::QueuedConnection);
+}
+
+const hotkey::Hotkey*
+WinHotkeyManager::getHotkey(hotkey::HotkeyHandle handle) const {
+  auto it = hotkeys.find(handle);
+  if (it != hotkeys.end()) {
+    return &it->second;
+  }
+  return nullptr;
 }
 
 bool WinHotkeyManager::nativeEventFilter(const QByteArray& eventType,

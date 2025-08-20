@@ -1,4 +1,4 @@
-#include "ui/rootbundlecontrolwidget.h"
+#include "ui/soundboard/rootbundlecontrolwidget.h"
 #include "ui_rootbundlecontrolwidget.h"
 
 RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,

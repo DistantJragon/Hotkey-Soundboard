@@ -1,8 +1,8 @@
-#include "ui/hotkeysoundboard.h"
+#include "ui/soundboard/hotkeysoundboard.h"
 #include "core/soundboard/bundleentry.h"
 #include "core/soundboard/playableentry.h"
 #include "core/soundboard/soundboardtypes.h"
-#include "ui/soundgroupdefaults.h"
+#include "ui/soundboard/bundledefaults.h"
 #include "ui_hotkeysoundboard.h"
 
 HotkeySoundboard::HotkeySoundboard(QWidget* parent)
@@ -14,17 +14,7 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();
 #ifndef HKSBNDEBUG
-  for (int i = 0; i < 10; ++i)
-    newRootBundle();
-  sb::hotkey::Hotkey hk;
-  hk.nativeModifiers = 0x0004; // SHIFT
-  hk.nativeKey = 0x42;         // B
-  hk.callback = [this](void* userData) {
-    qDebug("Hotkey pressed!");
-    newRootBundle();
-  };
-  hk.humanReadable = "Shift+B";
-  sb::hotkey::HotkeyHandle hkHandle = hotkeyManager->registerHotkey(hk);
+
 #endif // HKSBNDEBUG
 }
 
@@ -55,7 +45,7 @@ void HotkeySoundboard::setupRootBundleRenameDialog() {
 }
 
 bool HotkeySoundboard::isRootBundleNameValid(const std::string& name) const {
-  return name == SoundGroupDefaults::NAME ||
+  return name == BundleDefaults::NAME ||
          rootBundleNames.find(name) == rootBundleNames.end();
 }
 
@@ -63,7 +53,7 @@ void HotkeySoundboard::newRootBundle() {
   sb::EntryHandle nextHandle = soundboard->getNextHandle();
   auto result = rootBundleControlWidgets.try_emplace(
       nextHandle, rootBundleContainerWidget,
-      soundboard->newBundle(SoundGroupDefaults::NAME));
+      soundboard->newBundle(BundleDefaults::NAME));
   if (result.second) {
     RootBundleControlWidget& newWidget = result.first->second;
     sb::BundleEntry* bundleEntry =
@@ -277,9 +267,9 @@ void HotkeySoundboard::checkNewRootBundleName(const QString& name) {
 
 bool HotkeySoundboard::rootBundleNameCompare(const std::string& name1,
                                              const std::string& name2) const {
-  if (name1 == SoundGroupDefaults::NAME) {
+  if (name1 == BundleDefaults::NAME) {
     return true;
-  } else if (name2 == SoundGroupDefaults::NAME) {
+  } else if (name2 == BundleDefaults::NAME) {
     return false;
   } else {
     return name1 < name2;
@@ -300,7 +290,7 @@ int HotkeySoundboard::rootBundleWidgetLowerBound(
     return 0; // No items in the layout, insert at the start
   }
   std::string name = entryPtr->getName();
-  if (name == SoundGroupDefaults::NAME) {
+  if (name == BundleDefaults::NAME) {
     return 0; // Sound group with default name is always at the start
   }
   int left = 0;
@@ -379,4 +369,8 @@ void HotkeySoundboard::playEntry(sb::EntryHandle entry) {
   } else {
     qWarning("Cannot play an invalid entry.");
   }
+}
+
+void HotkeySoundboard::on_actionCreate_New_Bundle_triggered() {
+  newRootBundle();
 }

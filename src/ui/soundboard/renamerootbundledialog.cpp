@@ -1,4 +1,4 @@
-#include "ui/renamerootbundledialog.h"
+#include "ui/soundboard/renamerootbundledialog.h"
 #include "ui_renamerootbundledialog.h"
 
 RenameRootBundleDialog::RenameRootBundleDialog(QWidget* parent)

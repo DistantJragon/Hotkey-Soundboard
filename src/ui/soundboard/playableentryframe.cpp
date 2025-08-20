@@ -1,4 +1,4 @@
-#include "playableentryframe.h"
+#include "ui/soundboard/playableentryframe.h"
 #include "ui_playableentryframe.h"
 
 PlayableEntryFrame::PlayableEntryFrame(QWidget* parent,

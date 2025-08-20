@@ -268,7 +268,7 @@
   <customwidget>
    <class>RootBundleFrame</class>
    <extends>QFrame</extends>
-   <header>ui/rootbundleframe.h</header>
+   <header>ui/soundboard/rootbundleframe.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

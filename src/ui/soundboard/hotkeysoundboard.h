@@ -10,8 +10,8 @@
 #include "core/soundboard/soundboard.h"
 #include "core/soundboard/soundboardtypes.h"
 #include "ui/flowlayout.h"
-#include "ui/renamerootbundledialog.h"
-#include "ui/rootbundlecontrolwidget.h"
+#include "ui/soundboard/renamerootbundledialog.h"
+#include "ui/soundboard/rootbundlecontrolwidget.h"
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -41,6 +41,9 @@ public slots:
   void refreshRootBundleDisplay(sb::EntryHandle entry);
   void renameRootBundle(sb::EntryHandle entry, const std::string newName);
   void showRootBundle(sb::EntryHandle entry);
+
+private slots:
+  void on_actionCreate_New_Bundle_triggered();
 
 private:
   Ui::HotkeySoundboard* ui;

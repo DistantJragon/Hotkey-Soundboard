@@ -23,12 +23,12 @@ SOURCES += \
     src/core/soundboard/soundfileentry.cpp \
     src/ui/clickablelabel.cpp \
     src/ui/flowlayout.cpp \
-    src/ui/hotkeysoundboard.cpp \
-    src/ui/playableentryframe.cpp \
-    src/ui/renamerootbundledialog.cpp \
-    src/ui/rootbundleframe.cpp \
-    src/ui/soundentrywidget.cpp \
-    src/ui/rootbundlecontrolwidget.cpp
+    src/ui/soundboard/hotkeysoundboard.cpp \
+    src/ui/soundboard/playableentryframe.cpp \
+    src/ui/soundboard/renamerootbundledialog.cpp \
+    src/ui/soundboard/rootbundleframe.cpp \
+    src/ui/soundboard/soundentrywidget.cpp \
+    src/ui/soundboard/rootbundlecontrolwidget.cpp
 
 HEADERS += \
     src/adapters/qt/audio/basicaudioengine.h \
@@ -43,13 +43,13 @@ HEADERS += \
     src/core/soundboard/exceptions.h \
     src/ui/clickablelabel.h \
     src/ui/flowlayout.h \
-    src/ui/hotkeysoundboard.h \
-    src/ui/playableentryframe.h \
-    src/ui/renamerootbundledialog.h \
-    src/ui/rootbundleframe.h \
-    src/ui/soundentrywidget.h \
-    src/ui/soundgroupdefaults.h \
-    src/ui/rootbundlecontrolwidget.h
+    src/ui/soundboard/bundledefaults.h \
+    src/ui/soundboard/hotkeysoundboard.h \
+    src/ui/soundboard/playableentryframe.h \
+    src/ui/soundboard/renamerootbundledialog.h \
+    src/ui/soundboard/rootbundleframe.h \
+    src/ui/soundboard/soundentrywidget.h \
+    src/ui/soundboard/rootbundlecontrolwidget.h
 
 FORMS += \
     src/forms/hotkeysoundboard.ui \

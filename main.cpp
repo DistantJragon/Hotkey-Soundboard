@@ -1,4 +1,4 @@
-#include "src/ui/hotkeysoundboard.h"
+#include "src/ui/soundboard/hotkeysoundboard.h"
 
 #include <QApplication>
 

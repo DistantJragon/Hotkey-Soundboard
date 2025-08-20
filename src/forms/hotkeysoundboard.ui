@@ -53,13 +53,25 @@
    </widget>
    <widget class="QMenu" name="menuGroups">
     <property name="title">
-     <string>Groups</string>
+     <string>Bundles</string>
     </property>
+    <addaction name="actionCreate_New_Bundle"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuGroups"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionCreate_New_Bundle">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+   </property>
+   <property name="text">
+    <string>Create New Bundle</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

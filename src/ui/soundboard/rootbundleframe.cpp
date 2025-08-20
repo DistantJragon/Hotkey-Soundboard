@@ -3,7 +3,7 @@
 #include <QMimeData>
 
 #ifndef HKSBNDEBUG
-#include "ui/playableentryframe.h"
+#include "ui/soundboard/playableentryframe.h"
 #endif
 
 RootBundleFrame::RootBundleFrame(QWidget* parent) : QFrame(parent) {

@@ -15,7 +15,7 @@ WinHotkeyManager::~WinHotkeyManager() {
 
 hotkey::HotkeyHandle
 WinHotkeyManager::registerHotkey(const hotkey::Hotkey& hotkey) {
-  if (hotkey.nativeKey == 0) {
+  if (hotkey.nativeVirtualKey == 0) {
     return hotkey::InvalidHotkeyHandle;
   }
 
@@ -32,11 +32,11 @@ WinHotkeyManager::registerHotkey(const hotkey::Hotkey& hotkey) {
   auto result = hotkeys.try_emplace(h, hotkey, h);
 
   if (!result.second) {
-    // Handle already exists, unregister the hotkey
     return hotkey::InvalidHotkeyHandle;
   }
 
-  if (!RegisterHotKey(nullptr, h, hotkey.nativeModifiers, hotkey.nativeKey)) {
+  if (!RegisterHotKey(nullptr, h, hotkey.nativeModifiers,
+                      hotkey.nativeVirtualKey)) {
     hotkeys.erase(result.first);
     return hotkey::InvalidHotkeyHandle;
   }
@@ -71,7 +71,7 @@ void WinHotkeyManager::activateHotkey(hotkey::HotkeyHandle handle) {
     return;
 
   if (RegisterHotKey(nullptr, handle, it->second.nativeModifiers,
-                     it->second.nativeKey)) {
+                     it->second.nativeVirtualKey)) {
     it->second.active = true;
   }
 }
@@ -92,7 +92,7 @@ void WinHotkeyManager::activateAllHotkeys() {
   for (auto& pair : hotkeys) {
     if (!pair.second.active) {
       if (RegisterHotKey(nullptr, pair.first, pair.second.nativeModifiers,
-                         pair.second.nativeKey)) {
+                         pair.second.nativeVirtualKey)) {
         pair.second.active = true;
       }
     }

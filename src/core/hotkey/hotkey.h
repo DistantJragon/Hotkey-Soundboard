@@ -32,7 +32,8 @@ public:
   unsigned long portableKey = 0;
 
   unsigned long nativeModifiers = 0;
-  unsigned long nativeKey = 0;
+  unsigned long nativeVirtualKey = 0;
+  unsigned long nativeScanCode = 0;
 
   std::function<void(void*)> callback = nullptr;
   void* userData = nullptr;

@@ -7,10 +7,10 @@
 
 HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
+  ui->setupUi(this);
   engine = std::make_unique<sb::adapters::qt::BasicAudioEngine>();
   hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>(this);
   soundboard = std::make_unique<sb::Soundboard>(engine.get());
-  ui->setupUi(this);
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();
 #ifndef HKSBNDEBUG
@@ -24,9 +24,9 @@ HotkeySoundboard::~HotkeySoundboard() {
   for (auto& pair : rootBundleControlWidgets) {
     pair.second.setParent(nullptr);
   }
-  delete ui;
   delete rootBundleContainerWidget;
   delete renameRootBundleDialog;
+  delete ui;
 }
 
 void HotkeySoundboard::setupRootBundleContainerWidget() {

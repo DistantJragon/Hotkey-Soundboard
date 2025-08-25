@@ -110,7 +110,7 @@ void BasicAudioEngine::setMaxVoicesPerDevice(audio::DeviceHandle device,
   // TODO
 }
 
-void BasicAudioEngine::setPlayCooldown(audio::Milliseconds cooldown) {
+void BasicAudioEngine::setPlayCooldown(audio::Milliseconds) {
   // Not supported in this engine
 }
 

@@ -14,7 +14,7 @@ public:
   ~BasicAudioEngine() override;
 
   audio::SoundHandle load(const std::filesystem::path& filePath) override;
-  audio::SoundHandle load(const audio::RawAudioBuffer& buffer) override {
+  audio::SoundHandle load(const audio::RawAudioBuffer&) override {
     return audio::ErrorSound;
   }
   void unload(audio::SoundHandle sound) override;

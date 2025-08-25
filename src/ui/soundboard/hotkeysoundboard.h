@@ -78,6 +78,13 @@ private:
 
   void setupRootBundleRenameDialog();
 
+  bool addSoundFileFromFile(sb::EntryHandle entry,
+                            const std::filesystem::path& path, int index);
+
+  bool addDirectoryFromFile(sb::EntryHandle entry,
+                            const std::filesystem::path& path, int index,
+                            bool recursive = false);
+
   bool rootBundleNameCompare(const std::string& name1,
                              const std::string& name2) const;
 

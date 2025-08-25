@@ -5,6 +5,7 @@
 #include "ui/hotkey/hotkeymanagerdialog.h"
 #include "ui/soundboard/bundledefaults.h"
 #include "ui_hotkeysoundboard.h"
+#include <QMessageBox>
 
 HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
@@ -327,29 +328,119 @@ void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,
     if (url.isLocalFile()) {
       std::filesystem::path path = url.toLocalFile().toStdString();
       if (std::filesystem::is_directory(path)) {
-        // TODO: Handle directories
-      } else {
-        sb::EntryHandle newHandle = soundboard->newSoundFile(
-            path, path.filename().string(), entry, index);
-        if (newHandle == sb::InvalidEntryHandle) {
-          qWarning("Failed to add sound file '%s' to the sound group.",
-                   path.string().c_str());
-        } else {
-          index++;
-          auto it = rootBundleControlWidgets.find(entry);
-          if (it != rootBundleControlWidgets.end()) {
-            sb::BundleEntry* bundlePtr =
-                static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
-            it->second.refreshRootBundleDisplay(*bundlePtr);
-            qDebug("Added sound file '%s' to the sound group.",
-                   path.string().c_str());
-          }
+        if (addDirectoryFromFile(entry, path, index)) {
+          ++index;
         }
+      } else if (addSoundFileFromFile(entry, path, index)) {
+        ++index;
       }
     } else {
       qWarning("Only local files are supported for adding to the sound group.");
     }
   }
+}
+
+bool HotkeySoundboard::addSoundFileFromFile(sb::EntryHandle entry,
+                                            const std::filesystem::path& path,
+                                            int index) {
+  if (!soundboard->isValidEntry(entry)) {
+    qWarning("Cannot add a sound file to an invalid sound group.");
+    return false;
+  }
+  if (!std::filesystem::is_regular_file(path)) {
+    qWarning("Path '%s' is not a valid file.", path.string().c_str());
+    return false;
+  }
+  if (index < 0) {
+    qWarning("Invalid index for adding a sound file to the sound group.");
+    return false;
+  }
+  sb::EntryHandle newHandle =
+      soundboard->newSoundFile(path, path.filename().string(), entry, index);
+  if (newHandle == sb::InvalidEntryHandle) {
+    qWarning("Failed to add sound file '%s' to the sound group.",
+             path.string().c_str());
+    return false;
+  }
+  auto it = rootBundleControlWidgets.find(entry);
+  if (it != rootBundleControlWidgets.end()) {
+    sb::BundleEntry* bundlePtr =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
+    it->second.refreshRootBundleDisplay(*bundlePtr);
+    qDebug("Added sound file '%s' to the sound group.", path.string().c_str());
+  } else {
+#ifndef HKSBNDEBUG
+    sb::BundleEntry* bundlePtr =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
+    if (bundlePtr->getParentHandle() == sb::InvalidEntryHandle) {
+      qWarning("Failed to find root bundle control widget to refresh.");
+    }
+#endif // HKSBNDEBUG
+  }
+  return true;
+}
+
+bool HotkeySoundboard::addDirectoryFromFile(sb::EntryHandle entry,
+                                            const std::filesystem::path& path,
+                                            int index, bool recursive) {
+  if (!soundboard->isValidEntry(entry)) {
+    qWarning("Cannot add a directory to an invalid sound group.");
+    return false;
+  }
+  if (!std::filesystem::is_directory(path)) {
+    qWarning("Path '%s' is not a valid directory.", path.string().c_str());
+    return false;
+  }
+  if (index < 0) {
+    qWarning("Invalid index for adding a directory to the sound group.");
+    return false;
+  }
+  sb::EntryHandle newHandle =
+      soundboard->newBundle(path.filename().string(), entry, index);
+  if (newHandle == sb::InvalidEntryHandle) {
+    qWarning("Failed to add new bundle for directory '%s' to the sound group.",
+             path.string().c_str());
+    return false;
+  }
+  sb::BundleEntry* bundlePtr =
+      static_cast<sb::BundleEntry*>(soundboard->getEntry(newHandle));
+  bundlePtr->setPath(path.string());
+  bool shouldRecursivelyAdd = false;
+  if (!recursive) {
+    // If not recursive by parameter, ask the user
+    // If they say no, no directories will be added and the message box
+    // won't need to be shown again (unless more directories were dropped)
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(
+        this, "Add Directory",
+        QString("Do you want to recursively add all files from '%1'?")
+            .arg(QString::fromStdString(path.string())),
+        QMessageBox::Yes | QMessageBox::No);
+    shouldRecursivelyAdd = (reply == QMessageBox::Yes);
+  }
+  for (const auto& dirEntry : std::filesystem::directory_iterator(path)) {
+    if (dirEntry.is_directory() && shouldRecursivelyAdd) {
+      addDirectoryFromFile(newHandle, dirEntry.path(), 0, true);
+    } else if (dirEntry.is_regular_file()) {
+      addSoundFileFromFile(newHandle, dirEntry.path(), 0);
+    }
+  }
+  auto it = rootBundleControlWidgets.find(entry);
+  if (it != rootBundleControlWidgets.end()) {
+    sb::BundleEntry* bundlePtr =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
+    it->second.refreshRootBundleDisplay(*bundlePtr);
+    qDebug("Added directory '%s' to the sound group.", path.string().c_str());
+  } else {
+#ifndef HKSBNDEBUG
+    sb::BundleEntry* bundlePtr =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(entry));
+    if (bundlePtr->getParentHandle() == sb::InvalidEntryHandle) {
+      qWarning("Failed to find root bundle control widget to refresh.");
+    }
+#endif // HKSBNDEBUG
+  }
+  return true;
 }
 
 void HotkeySoundboard::loadHotkeyModel(HotkeyTableModel* model) {

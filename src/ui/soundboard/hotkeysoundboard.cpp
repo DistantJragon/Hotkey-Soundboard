@@ -314,7 +314,8 @@ int HotkeySoundboard::rootBundleWidgetLowerBound(
 
 int HotkeySoundboard::rootBundleWidgetIndexOf(const sb::EntryHandle rootBundle,
                                               int from) const {
-  if (!rootBundle || from < 0 || from >= rootBundleFlowLayout->count()) {
+  if (!soundboard->isValidEntry(rootBundle) || from < 0 ||
+      from >= rootBundleFlowLayout->count()) {
     return -1; // Invalid sound group or out of bounds
   }
   for (int i = from; i < rootBundleFlowLayout->count(); ++i) {

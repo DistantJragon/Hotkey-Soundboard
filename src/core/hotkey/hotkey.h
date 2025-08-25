@@ -18,13 +18,30 @@ enum class Modifier {
 class Hotkey {
 public:
   Hotkey() = default;
-  Hotkey(const HotkeyHandle& handle) : handle(handle) {}
-  Hotkey(const Hotkey& other, HotkeyHandle handle)
-      : humanReadable(other.humanReadable),
-        portableModifiers(other.portableModifiers),
-        portableKey(other.portableKey), nativeModifiers(other.nativeModifiers),
-        nativeKey(other.nativeKey), callback(other.callback),
-        userData(other.userData), handle(handle) {}
+  Hotkey(HotkeyHandle handle) : handle(handle) {}
+  Hotkey(const Hotkey& other, HotkeyHandle handle) : Hotkey(other) {
+    this->handle = handle;
+  }
+
+  void setKeyData(const Hotkey& other) {
+    humanReadable = other.humanReadable;
+    portableModifiers = other.portableModifiers;
+    portableKey = other.portableKey;
+    nativeModifiers = other.nativeModifiers;
+    nativeVirtualKey = other.nativeVirtualKey;
+    nativeScanCode = other.nativeScanCode;
+  }
+
+  bool portableEquals(const Hotkey& other) const {
+    return portableModifiers == other.portableModifiers &&
+           portableKey == other.portableKey;
+  }
+
+  bool nativeEquals(const Hotkey& other) const {
+    return nativeModifiers == other.nativeModifiers &&
+           nativeVirtualKey == other.nativeVirtualKey &&
+           nativeScanCode == other.nativeScanCode;
+  }
 
   std::string humanReadable;
 
@@ -38,7 +55,7 @@ public:
   std::function<void(void*)> callback = nullptr;
   void* userData = nullptr;
 
-  const HotkeyHandle handle = InvalidHotkeyHandle;
+  HotkeyHandle handle = InvalidHotkeyHandle;
   bool active = false;
 };
 

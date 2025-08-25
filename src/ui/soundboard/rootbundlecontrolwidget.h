@@ -37,7 +37,6 @@ signals:
 private:
   Ui::RootBundleControlWidget* ui;
   QVBoxLayout* playableEntryLayout = nullptr;
-  QVBoxLayout* hotkeyLayout = nullptr;
   const sb::EntryHandle entry;
 };
 

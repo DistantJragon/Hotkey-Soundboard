@@ -2,6 +2,7 @@
 #include "core/soundboard/bundleentry.h"
 #include "core/soundboard/playableentry.h"
 #include "core/soundboard/soundboardtypes.h"
+#include "ui/hotkey/hotkeymanagerdialog.h"
 #include "ui/soundboard/bundledefaults.h"
 #include "ui_hotkeysoundboard.h"
 
@@ -9,12 +10,24 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
   ui->setupUi(this);
   engine = std::make_unique<sb::adapters::qt::BasicAudioEngine>();
-  hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>(this);
+  // TODO: load soundboard state from file
   soundboard = std::make_unique<sb::Soundboard>(engine.get());
+#ifdef Q_OS_WIN
+  hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>();
+#else
+  // TODO: D-Bus
+#endif // Q_OS_WIN
+  setupHotkeyModel();
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();
 #ifndef HKSBNDEBUG
-
+  // sb::hotkey::Hotkey hotkey;
+  // hotkey.humanReadable = "Shift+B";
+  // hotkey.nativeModifiers = 0x4;
+  // hotkey.nativeVirtualKey = 0x42;
+  // hotkey.callback = [](void*) { qDebug("debug hotkey triggered!"); };
+  // sb::hotkey::HotkeyHandle handle = hotkeyManager->registerHotkey(hotkey);
+  // qDebug("Registered debug hotkey with handle: %d", handle);
 #endif // HKSBNDEBUG
 }
 
@@ -24,9 +37,19 @@ HotkeySoundboard::~HotkeySoundboard() {
   for (auto& pair : rootBundleControlWidgets) {
     pair.second.setParent(nullptr);
   }
+  delete hotkeyModel;
   delete rootBundleContainerWidget;
   delete renameRootBundleDialog;
   delete ui;
+}
+
+void HotkeySoundboard::setupHotkeyModel() {
+  if (!hotkeyModel) {
+    hotkeyModel = new HotkeyTableModel(this, soundboard.get());
+    connect(hotkeyModel, &HotkeyTableModel::categoryNamesChanged, this,
+            &HotkeySoundboard::onCategoriesChanged);
+    changeCategory(GlobalCategoryHandle);
+  }
 }
 
 void HotkeySoundboard::setupRootBundleContainerWidget() {
@@ -47,6 +70,68 @@ void HotkeySoundboard::setupRootBundleRenameDialog() {
 bool HotkeySoundboard::isRootBundleNameValid(const std::string& name) const {
   return name == BundleDefaults::NAME ||
          rootBundleNames.find(name) == rootBundleNames.end();
+}
+
+void HotkeySoundboard::changeCategory(CategoryHandle category) {
+  if (currentCategory == category) {
+    return;
+  }
+  if (!hotkeyModel->getCategoryNames().count(category)) {
+    qWarning("Cannot change to an unknown category.");
+    return;
+  }
+  currentCategory = category;
+  hotkeyManager->unregisterAllHotkeys();
+  const auto& rows = hotkeyModel->getRows();
+  for (int i = 0; i < hotkeyModel->rowCount({}); ++i) {
+    const HotkeyRow& row = rows.at(i);
+    if (row.enabled && !row.conflict &&
+        (row.category == currentCategory ||
+         row.category == GlobalCategoryHandle)) {
+      hotkeyModel->setCallbackAt(i, hotkeyActionToFunction(row.action));
+      sb::hotkey::HotkeyHandle handle =
+          hotkeyManager->registerHotkey(hotkeyModel->getRows().at(i).hotkey);
+      qDebug("%d", handle);
+    } else {
+      hotkeyModel->setCallbackAt(i, nullptr);
+    }
+  }
+}
+
+void HotkeySoundboard::reloadAllHotkeys() {
+  hotkeyManager->unregisterAllHotkeys();
+  CategoryHandle cat = currentCategory;
+  currentCategory = InvalidCategoryHandle;
+  changeCategory(cat);
+}
+
+std::function<void(void*)>
+HotkeySoundboard::hotkeyActionToFunction(const HotkeyAction& action) {
+  switch (action.type) {
+  case HotkeyAction::Type::ChangeCategory:
+    return [this, action](void*) { changeCategory(action.targetCategory); };
+  case HotkeyAction::Type::PlayEntry:
+    qDebug("Playing entry with handle: %d", action.targetEntry);
+    return [this, action](void*) { playEntry(action.targetEntry); };
+  case HotkeyAction::Type::StopEntry:
+    // TODO
+    return [this, action](void*) {};
+  case HotkeyAction::Type::StopAll:
+    return [this](void*) { soundboard->stopAllEntries(); };
+  case HotkeyAction::Type::None:
+  default:
+    return [](void*) {};
+  }
+}
+
+void HotkeySoundboard::onCategoriesChanged(QList<CategoryHandle> added,
+                                           QList<CategoryHandle> removed) {
+  Q_UNUSED(added);
+  for (CategoryHandle cat : removed) {
+    if (cat == currentCategory) {
+      changeCategory(GlobalCategoryHandle);
+    }
+  }
 }
 
 void HotkeySoundboard::newRootBundle() {
@@ -215,6 +300,13 @@ void HotkeySoundboard::openRenameRootBundleDialog(sb::EntryHandle rootBundle) {
   }
 }
 
+void HotkeySoundboard::openHotkeyManagerDialog() {
+  HotkeyManagerDialog hotkeyManagerDialog(this, soundboard.get(), hotkeyModel);
+  if (hotkeyManagerDialog.exec() == QDialog::Accepted) {
+    loadHotkeyModel(hotkeyManagerDialog.getHotkeyModel());
+  }
+}
+
 void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,
                                            const QList<QUrl>& urls, int index) {
   qDebug("Adding files to sound group with handle: %d at index: %d", entry,
@@ -258,6 +350,16 @@ void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,
       qWarning("Only local files are supported for adding to the sound group.");
     }
   }
+}
+
+void HotkeySoundboard::loadHotkeyModel(HotkeyTableModel* model) {
+  if (!model) {
+    qWarning("Cannot load a null hotkey model.");
+    return;
+  }
+  hotkeyModel->loadFromRows(model->getRows());
+  hotkeyModel->setCategoryNames(model->getCategoryNames());
+  reloadAllHotkeys();
 }
 
 void HotkeySoundboard::checkNewRootBundleName(const QString& name) {
@@ -374,4 +476,8 @@ void HotkeySoundboard::playEntry(sb::EntryHandle entry) {
 
 void HotkeySoundboard::on_actionCreate_New_Bundle_triggered() {
   newRootBundle();
+}
+
+void HotkeySoundboard::on_actionOpen_Hotkey_Manager_triggered() {
+  openHotkeyManagerDialog();
 }

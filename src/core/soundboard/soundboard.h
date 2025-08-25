@@ -85,7 +85,17 @@ public:
    */
   void playEntry(EntryHandle entry);
 
+  /*!
+   * \brief Stops all entries currently playing in the soundboard.
+   */
+  void stopAllEntries();
+
   EntryHandle getNextHandle() const { return nextHandle; }
+
+  std::unordered_map<EntryHandle, std::unique_ptr<PlayableEntry>>&
+  getEntries() {
+    return entries;
+  }
 
 private:
   std::unordered_map<EntryHandle, std::unique_ptr<PlayableEntry>> entries;

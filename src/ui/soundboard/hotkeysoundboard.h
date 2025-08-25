@@ -2,17 +2,19 @@
 #define HOTKEYSOUNDBOARD_H
 
 #include "adapters/qt/audio/basicaudioengine.h"
+#include "core/soundboard/soundboard.h"
+#include "core/soundboard/soundboardtypes.h"
+#include "ui/flowlayout.h"
+#include "ui/hotkey/hotkeytablemodel.h"
+#include "ui/soundboard/renamerootbundledialog.h"
+#include "ui/soundboard/rootbundlecontrolwidget.h"
+#include <QMainWindow>
+
 #ifdef Q_OS_WIN
 #include "adapters/qt/hotkey/winhotkeymanager.h"
 #else
 // TODO: D-Bus
 #endif // Q_OS_WIN
-#include "core/soundboard/soundboard.h"
-#include "core/soundboard/soundboardtypes.h"
-#include "ui/flowlayout.h"
-#include "ui/soundboard/renamerootbundledialog.h"
-#include "ui/soundboard/rootbundlecontrolwidget.h"
-#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,6 +29,7 @@ public:
   HotkeySoundboard(QWidget* parent = nullptr);
   ~HotkeySoundboard();
 
+  void changeCategory(CategoryHandle category);
   bool isRootBundleNameValid(const std::string& name) const;
 
 public slots:
@@ -35,7 +38,11 @@ public slots:
   void checkNewRootBundleName(const QString& name);
   void deleteRootBundle(sb::EntryHandle entry);
   void hideRootBundle(sb::EntryHandle entry);
+  void loadHotkeyModel(HotkeyTableModel* model);
   void newRootBundle();
+  void onCategoriesChanged(QList<CategoryHandle> added,
+                           QList<CategoryHandle> removed);
+  void openHotkeyManagerDialog();
   void openRenameRootBundleDialog(sb::EntryHandle entry);
   void playEntry(sb::EntryHandle entry);
   void refreshRootBundleDisplay(sb::EntryHandle entry);
@@ -45,21 +52,27 @@ public slots:
 private slots:
   void on_actionCreate_New_Bundle_triggered();
 
+  void on_actionOpen_Hotkey_Manager_triggered();
+
 private:
   Ui::HotkeySoundboard* ui;
   std::unique_ptr<sb::adapters::qt::BasicAudioEngine> engine;
+  std::unique_ptr<sb::Soundboard> soundboard;
 #ifdef Q_OS_WIN
   std::unique_ptr<sb::adapters::qt::WinHotkeyManager> hotkeyManager;
 #else
   // TODO: D-Bus
 #endif // Q_OS_WIN
-  std::unique_ptr<sb::Soundboard> soundboard;
+  CategoryHandle currentCategory = InvalidCategoryHandle;
   QWidget* rootBundleContainerWidget = nullptr;
   FlowLayout* rootBundleFlowLayout = nullptr;
   RenameRootBundleDialog* renameRootBundleDialog = nullptr;
+  HotkeyTableModel* hotkeyModel = nullptr;
   std::unordered_map<sb::EntryHandle, RootBundleControlWidget>
       rootBundleControlWidgets;
   std::unordered_set<std::string> rootBundleNames;
+
+  void setupHotkeyModel();
 
   void setupRootBundleContainerWidget();
 
@@ -89,5 +102,16 @@ private:
    * false otherwise.
    */
   bool removeRootBundleWidget(const sb::EntryHandle rootBundle);
+
+  void reloadAllHotkeys();
+
+  /*! \brief Converts a HotkeyAction to a callable function
+   *
+   * This function converts a HotkeyAction to a callable function that can be
+   * used as a hotkey callback.
+   * \param action The HotkeyAction to convert.
+   * \return A std::function that takes no parameters and returns void.
+   */
+  std::function<void(void*)> hotkeyActionToFunction(const HotkeyAction& action);
 };
 #endif // HOTKEYSOUNDBOARD_H

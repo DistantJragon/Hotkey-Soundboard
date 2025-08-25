@@ -38,6 +38,7 @@ EntryHandle Soundboard::newBundle(const std::string& name,
   }
   result.first->second->setName(name);
   auto& parentEntry = static_cast<ContainerEntry&>(*parentIt->second);
+  // TODO: Check if index is valid
   parentEntry.addChild(index, result.first->second.get());
   nextHandle++;
   return result.first->first;
@@ -112,6 +113,7 @@ void Soundboard::deleteEntryViaParent(EntryHandle parent, size_t index) {
     return;
   }
   auto& parentEntry = static_cast<ContainerEntry&>(*it->second);
+  // TODO: Check if index is valid
   PlayableEntry* entryToDelete = parentEntry.getChildren().at(index);
   parentEntry.removeChild(index);
   if (!entryToDelete) {
@@ -168,4 +170,9 @@ void Soundboard::deleteEntryAndChildren(EntryHandle entry) {
   entries.erase(it);
 }
 
+void Soundboard::stopAllEntries() {
+  if (audioEngine) {
+    audioEngine->stopAll();
+  }
+}
 } // namespace sb

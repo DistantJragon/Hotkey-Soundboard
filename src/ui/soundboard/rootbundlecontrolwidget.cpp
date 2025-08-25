@@ -14,8 +14,6 @@ RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,
           });
   connect(ui->rootBundleFrame, &RootBundleFrame::playRequested, this,
           &RootBundleControlWidget::playRequested);
-
-  hotkeyLayout = new QVBoxLayout(ui->hotkeyFrame);
 }
 
 RootBundleControlWidget::~RootBundleControlWidget() { delete ui; }

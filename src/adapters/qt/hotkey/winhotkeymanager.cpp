@@ -138,8 +138,10 @@ WinHotkeyManager::getHotkey(hotkey::HotkeyHandle handle) const {
 bool WinHotkeyManager::nativeEventFilter(const QByteArray& eventType,
                                          void* message, qintptr* result) {
   MSG* msg = static_cast<MSG*>(message);
+  // qDebug("Detected msg: %u", msg->message);
   if (msg->message == WM_HOTKEY) {
     int winId = (int)msg->wParam;
+    qDebug("Hotkey pressed: %d", winId);
     auto it = hotkeys.find(winId);
     if (it != hotkeys.end()) {
       auto hotkey = it->second;
@@ -147,6 +149,8 @@ bool WinHotkeyManager::nativeEventFilter(const QByteArray& eventType,
           this,
           [hotkey]() {
             if (hotkey.callback) {
+              qDebug("Running hotkey %s, %d", hotkey.humanReadable.c_str(),
+                     hotkey.handle);
               hotkey.callback(hotkey.userData);
             }
           },

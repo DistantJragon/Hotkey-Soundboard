@@ -23,6 +23,16 @@ SOURCES += \
     src/core/soundboard/soundfileentry.cpp \
     src/ui/clickablelabel.cpp \
     src/ui/flowlayout.cpp \
+    src/ui/hotkey/actionchooserdialog.cpp \
+    src/ui/hotkey/actiondelegate.cpp \
+    src/ui/hotkey/categorychooserdialog.cpp \
+    src/ui/hotkey/categorydelegate.cpp \
+    src/ui/hotkey/hotkeycapturedialog.cpp \
+    src/ui/hotkey/hotkeydelegate.cpp \
+    src/ui/hotkey/hotkeyeditbutton.cpp \
+    src/ui/hotkey/hotkeymanagerdialog.cpp \
+    src/ui/hotkey/hotkeytablemodel.cpp \
+    src/ui/hotkey/platkeysequenceedit.cpp \
     src/ui/soundboard/hotkeysoundboard.cpp \
     src/ui/soundboard/playableentryframe.cpp \
     src/ui/soundboard/renamerootbundledialog.cpp \
@@ -43,6 +53,17 @@ HEADERS += \
     src/core/soundboard/exceptions.h \
     src/ui/clickablelabel.h \
     src/ui/flowlayout.h \
+    src/ui/hotkey/actionchooserdialog.h \
+    src/ui/hotkey/actiondelegate.h \
+    src/ui/hotkey/categorychooserdialog.h \
+    src/ui/hotkey/categorydelegate.h \
+    src/ui/hotkey/hotkeycapturedialog.h \
+    src/ui/hotkey/hotkeydelegate.h \
+    src/ui/hotkey/hotkeyeditbutton.h \
+    src/ui/hotkey/hotkeyguitypes.h \
+    src/ui/hotkey/hotkeymanagerdialog.h \
+    src/ui/hotkey/hotkeytablemodel.h \
+    src/ui/hotkey/platkeysequenceedit.h \
     src/ui/soundboard/bundledefaults.h \
     src/ui/soundboard/hotkeysoundboard.h \
     src/ui/soundboard/playableentryframe.h \
@@ -52,6 +73,10 @@ HEADERS += \
     src/ui/soundboard/rootbundlecontrolwidget.h
 
 FORMS += \
+    src/forms/actionchooserdialog.ui \
+    src/forms/categorychooserdialog.ui \
+    src/forms/hotkeycapturedialog.ui \
+    src/forms/hotkeymanagerdialog.ui \
     src/forms/hotkeysoundboard.ui \
     src/forms/playableentryframe.ui \
     src/forms/renamerootbundledialog.ui \

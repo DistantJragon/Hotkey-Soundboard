@@ -232,28 +232,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QFrame" name="hotkeyFrame">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Shape::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Shadow::Sunken</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

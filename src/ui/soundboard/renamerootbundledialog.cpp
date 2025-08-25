@@ -25,6 +25,7 @@ void RenameRootBundleDialog::setCurrentName(const std::string& name) {
 
 void RenameRootBundleDialog::setValidName(bool valid) {
   validName = valid;
+  // TODO: Disable OK button if not valid
   if (valid) {
     ui->nameLineEdit->setStyleSheet("QLineEdit { border: 1px solid black; }");
   } else {

@@ -57,8 +57,15 @@
     </property>
     <addaction name="actionCreate_New_Bundle"/>
    </widget>
+   <widget class="QMenu" name="menuHotkeys">
+    <property name="title">
+     <string>Hotkeys</string>
+    </property>
+    <addaction name="actionOpen_Hotkey_Manager"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuGroups"/>
+   <addaction name="menuHotkeys"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionCreate_New_Bundle">
@@ -70,6 +77,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen_Hotkey_Manager">
+   <property name="text">
+    <string>Open Hotkey Manager</string>
    </property>
   </action>
  </widget>

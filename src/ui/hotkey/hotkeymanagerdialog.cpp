@@ -145,6 +145,9 @@ void HotkeyManagerDialog::fillHotkeyEditor(const HotkeyRow& row) {
 
 void HotkeyManagerDialog::fillCategoryCombo(CategoryHandle selected) {
   ui->categoryComboBox->clear();
+  if (selected == InvalidCategoryHandle) {
+    selected = GlobalCategoryHandle;
+  }
   auto it = hotkeyModel->getCategoryNames().find(selected);
   std::string catName;
   if (it != hotkeyModel->getCategoryNames().end()) {

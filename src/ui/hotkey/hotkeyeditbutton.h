@@ -13,10 +13,11 @@ public:
 
 public slots:
   void openHotkeyCaptureDialog();
-  void setHotkey(const sb::hotkey::Hotkey& hotkey) { hotkey_ = hotkey; }
+  void setHotkey(const sb::hotkey::Hotkey& hotkey);
 
 signals:
   void hotkeyChanged(const sb::hotkey::Hotkey& hotkey);
+  void hotkeyEdited(const sb::hotkey::Hotkey& hotkey);
 
 private:
   sb::hotkey::Hotkey hotkey_;

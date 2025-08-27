@@ -1,6 +1,7 @@
 #include "hotkeymanagerdialog.h"
 #include "ui/hotkey/hotkeyguitypes.h"
 #include "ui_hotkeymanagerdialog.h"
+#include <QMessageBox>
 
 HotkeyManagerDialog::HotkeyManagerDialog(QWidget* parent, sb::Soundboard* sb,
                                          HotkeyTableModel* model)
@@ -12,11 +13,10 @@ HotkeyManagerDialog::HotkeyManagerDialog(QWidget* parent, sb::Soundboard* sb,
     hotkeyModel->loadFromRows(finalHotkeyModel->getRows());
     hotkeyModel->setCategoryNames(finalHotkeyModel->getCategoryNames());
   }
-  loadSortedCategoryNames();
-  setupHotkeyEditor();
-  ui->removeButton->setEnabled(false);
 
   ui->tableView->setModel(hotkeyModel);
+
+  setupHotkeyEditor();
 
   connect(ui->tableView->selectionModel(),
           &QItemSelectionModel::selectionChanged, this,
@@ -46,7 +46,6 @@ HotkeyManagerDialog::HotkeyManagerDialog(QWidget* parent, sb::Soundboard* sb,
             ui->hotkeyKeyDataLabel->setText(
                 QString::fromStdString(hk.humanReadable));
           });
-  ui->hotkeyKeyDataLabel->setText("<None>");
 }
 
 HotkeyManagerDialog::~HotkeyManagerDialog() {
@@ -84,7 +83,7 @@ void HotkeyManagerDialog::updateHotkeyEditor() {
     return;
   } else {
     fillHotkeyEditor();
-    setHotkeyEditorEnabled(false);
+    setHotkeyEditorEnabled(true);
     ui->removeButton->setEnabled(true);
     return;
   }
@@ -92,17 +91,7 @@ void HotkeyManagerDialog::updateHotkeyEditor() {
 
 void HotkeyManagerDialog::applyHotkeyChanges() {
   auto selection = ui->tableView->selectionModel()->selectedRows();
-  if (selection.size() != 1) {
-    return;
-  }
-  int row = selection.first().row();
-  hotkeyModel->setData(
-      hotkeyModel->index(row, static_cast<int>(HotkeyColumn::Enabled)),
-      ui->enabledCheckBox->isChecked() ? Qt::Checked : Qt::Unchecked,
-      Qt::CheckStateRole);
-  std::string catName = ui->categoryComboBox->currentText().toStdString();
-  hotkeyModel->setCategoryAt(row, catName);
-  hotkeyModel->setKeyDataAt(row, ui->hotkeyEditButton->hotkey());
+  // Build action so it can be shown to the user if needed
   HotkeyAction action;
   action.type = static_cast<HotkeyAction::Type>(
       ui->actionTypeComboBox->currentData().toInt());
@@ -118,7 +107,59 @@ void HotkeyManagerDialog::applyHotkeyChanges() {
   default:
     break;
   }
-  hotkeyModel->setActionAt(row, action);
+  if (selection.size() == 0) {
+    return;
+  } else if (selection.size() > 1) {
+    // Ask for confirmation
+    QString details;
+    details += "You have multiple rows selected. Applying changes will"
+               " overwrite data in all selected rows with the following changes"
+               " made in the editor. Do you want to continue?"
+               "\n    Set ";
+    details += ui->enabledCheckBox->isChecked() ? "Enabled" : "Disabled";
+    if (!ui->categoryComboBox->currentText().isEmpty()) {
+      details += "\n    Category: ";
+      details += ui->categoryComboBox->currentText();
+    }
+    if (ui->hotkeyEditButton->hotkey().humanReadable != "") {
+      details += "\n    Hotkey: ";
+      details +=
+          QString::fromStdString(ui->hotkeyEditButton->hotkey().humanReadable);
+    }
+    if (ui->actionTypeComboBox->currentIndex() != -1) {
+      details += "\n    Action: ";
+      details += hotkeyModel->actionToString(action);
+    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Apply Changes", details,
+                                  QMessageBox::Yes | QMessageBox::No,
+                                  QMessageBox::No);
+    if (reply != QMessageBox::Yes) {
+      return;
+    }
+  }
+  // Gather data from hotkey editor before applying to prevent issues when the
+  // hotkey editor updates as the model changes
+  std::string catName = ui->categoryComboBox->currentText().toStdString();
+  sb::hotkey::Hotkey hk = ui->hotkeyEditButton->hotkey();
+  int actionIndex = ui->actionTypeComboBox->currentIndex();
+  bool enabled = ui->enabledCheckBox->isChecked();
+  for (const auto& idx : selection) {
+    int row = idx.row();
+    hotkeyModel->setData(
+        hotkeyModel->index(row, static_cast<int>(HotkeyColumn::Enabled)),
+        enabled ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+    if (!catName.empty()) {
+      hotkeyModel->setCategoryAt(row, catName);
+    }
+    if (hk.humanReadable != "") {
+      hotkeyModel->setKeyDataAt(row, hk);
+    }
+    if (actionIndex != -1) {
+      hotkeyModel->setActionAt(row, action);
+    }
+  }
+  updateHotkeyEditor();
 }
 
 void HotkeyManagerDialog::deleteSelectedHotkeyRows() {
@@ -136,8 +177,6 @@ void HotkeyManagerDialog::deleteSelectedHotkeyRows() {
 void HotkeyManagerDialog::fillHotkeyEditor(const HotkeyRow& row) {
   ui->enabledCheckBox->setChecked(row.enabled);
   fillCategoryCombo(row.category);
-  ui->hotkeyKeyDataLabel->setText(
-      QString::fromStdString(row.hotkey.humanReadable));
   ui->hotkeyEditButton->setHotkey(row.hotkey);
   fillActionTypeCombo(row.action.type);
   updateActionTargetComboBox();
@@ -145,7 +184,8 @@ void HotkeyManagerDialog::fillHotkeyEditor(const HotkeyRow& row) {
 
 void HotkeyManagerDialog::fillCategoryCombo(CategoryHandle selected) {
   ui->categoryComboBox->clear();
-  if (selected == InvalidCategoryHandle) {
+  if (selected == InvalidCategoryHandle &&
+      ui->tableView->selectionModel()->selectedRows().size() == 1) {
     selected = GlobalCategoryHandle;
   }
   auto it = hotkeyModel->getCategoryNames().find(selected);
@@ -173,6 +213,10 @@ void HotkeyManagerDialog::fillActionTypeCombo(HotkeyAction::Type action) {
       "Stop Entry", static_cast<int>(HotkeyAction::Type::StopEntry));
   ui->actionTypeComboBox->addItem(
       "Stop All", static_cast<int>(HotkeyAction::Type::StopAll));
+  if (ui->tableView->selectionModel()->selectedRows().size() > 1) {
+    ui->actionTypeComboBox->setCurrentIndex(-1);
+    return;
+  }
   switch (action) {
   case HotkeyAction::Type::None:
     ui->actionTypeComboBox->setCurrentIndex(0);
@@ -251,7 +295,7 @@ void HotkeyManagerDialog::updateActionTargetComboBox() {
     break;
   default:
     ui->actionTargetComboBox->clear();
-    ui->actionTargetComboBox->setEditText("<N/A>");
+    ui->actionTargetComboBox->setCurrentIndex(-1);
     ui->actionTargetComboBox->hide();
     break;
   }
@@ -269,16 +313,20 @@ bool HotkeyManagerDialog::compareCategoryNames(const std::string& name1,
 }
 
 void HotkeyManagerDialog::setupHotkeyEditor() {
+  ui->hotkeyKeyDataLabel->setText("");
+  loadSortedCategoryNames();
   fillCategoryCombo();
   fillActionTypeCombo();
   ui->actionTargetComboBox->hide();
   setHotkeyEditorEnabled(false);
+  ui->removeButton->setEnabled(false);
 }
 
 void HotkeyManagerDialog::setHotkeyEditorEnabled(bool enabled) {
   ui->hotkeyDataWidget->setEnabled(enabled);
   ui->saveHotkeyButton->setEnabled(enabled);
 }
+
 void HotkeyManagerDialog::loadSortedCategoryNames() {
   sortedCategoryNames.clear();
   const auto& catNamesMap = hotkeyModel->getCategoryNames();

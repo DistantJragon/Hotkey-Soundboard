@@ -7,6 +7,15 @@ namespace sb {
 Soundboard::Soundboard(audio::IAudioEngine* audioEngine)
     : audioEngine(audioEngine) {}
 
+Soundboard::~Soundboard() {
+  for (auto& [handle, entry] : entries) {
+    if (entry->type == PlayableEntry::Type::SoundFile) {
+      auto soundFileEntry = static_cast<SoundFileEntry*>(entry.get());
+      audioEngine->unload(soundFileEntry->getHandleToPlay(randomEngine));
+    }
+  }
+}
+
 EntryHandle Soundboard::newBundle(const std::string& name) {
   if (nextHandle == InvalidEntryHandle) {
     return InvalidEntryHandle;
@@ -256,5 +265,16 @@ void Soundboard::stopAllEntries() {
   if (audioEngine) {
     audioEngine->stopAll();
   }
+}
+
+void Soundboard::clear() {
+  for (auto& [handle, entry] : entries) {
+    if (entry->type == PlayableEntry::Type::SoundFile) {
+      auto soundFileEntry = static_cast<SoundFileEntry*>(entry.get());
+      audioEngine->unload(soundFileEntry->getHandleToPlay(randomEngine));
+    }
+  }
+  entries.clear();
+  nextHandle = 0;
 }
 } // namespace sb

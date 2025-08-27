@@ -13,7 +13,7 @@ namespace sb {
 class Soundboard {
 public:
   Soundboard(sb::audio::IAudioEngine* audioEngine);
-  ~Soundboard() = default;
+  ~Soundboard();
 
   /*!
    * \brief Adds a bundle entry to the soundboard.
@@ -109,10 +109,20 @@ public:
    */
   void stopAllEntries();
 
+  /* \brief Clears all entries from the soundboard.
+   * This will delete all entries and free associated resources.
+   */
+  void clear();
+
   EntryHandle getNextHandle() const { return nextHandle; }
 
   std::unordered_map<EntryHandle, std::unique_ptr<PlayableEntry>>&
   getEntries() {
+    return entries;
+  }
+
+  const std::unordered_map<EntryHandle, std::unique_ptr<PlayableEntry>>&
+  getEntries() const {
     return entries;
   }
 

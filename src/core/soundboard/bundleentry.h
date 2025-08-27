@@ -23,14 +23,17 @@ public:
 
   const std::vector<PlayableEntry*> getEntries() const { return children; }
   bool isRandomPlay() const { return randomPlay; }
+  bool isRecursive() const { return recursive; }
   unsigned int getWeightSum() const { return weightSum; }
   unsigned int getOrderTracker() const { return orderTracker; }
   void setRandomPlay(bool random) { randomPlay = random; }
+  void setRecursive(bool rec) { recursive = rec; }
 
 private:
   unsigned int weightSum = 0;
   unsigned int orderTracker = 0;
   bool randomPlay = true;
+  bool recursive = false;
 
   audio::SoundHandle playRandom(std::mt19937& randomEngine);
   audio::SoundHandle playOrdered(std::mt19937& randomEngine);

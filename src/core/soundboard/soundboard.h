@@ -33,6 +33,25 @@ public:
   EntryHandle newBundle(const std::string& name, EntryHandle parentHandle,
                         size_t index);
 
+  /* \brief Adds a bundle entry reading from a directory to the soundboard
+   * under a parent entry.
+   * \param name The name of the new bundle.
+   * \param parentHandle The handle of the parent entry.
+   * \param index The index at which to insert the new bundle in the parent's
+   * list.
+   * \param path The path to the directory to read entries from.
+   * \param recursive Whether to read entries recursively from subdirectories.
+   * \return A handle to the new bundle entry.
+   */
+  EntryHandle newBundle(const std::string& name, EntryHandle parentHandle,
+                        size_t index, const std::string& path, bool recursive);
+
+  /*!
+   * \brief Reloads a bundle entry from its directory path.
+   * \param bundleHandle The handle of the bundle entry to reload.
+   * */
+  void reloadBundle(EntryHandle bundleHandle);
+
   /*!
    * \brief Adds a sound file entry to the soundboard.
    * \param path The path to the sound file.

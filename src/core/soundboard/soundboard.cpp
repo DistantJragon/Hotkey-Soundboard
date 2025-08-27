@@ -44,6 +44,88 @@ EntryHandle Soundboard::newBundle(const std::string& name,
   return result.first->first;
 }
 
+EntryHandle Soundboard::newBundle(const std::string& name,
+                                  EntryHandle parentHandle, size_t index,
+                                  const std::string& path, bool recursive) {
+  if (parentHandle == InvalidEntryHandle || nextHandle == InvalidEntryHandle) {
+    return InvalidEntryHandle;
+  }
+  auto parentIt = entries.find(parentHandle);
+  if (parentIt == entries.end() ||
+      PlayableEntry::isContainerType(parentIt->second->type) == false) {
+    return InvalidEntryHandle;
+  }
+  auto [pairIt, success] = entries.try_emplace(
+      nextHandle, std::make_unique<BundleEntry>(nextHandle, parentHandle));
+  if (!success) {
+    return InvalidEntryHandle;
+  }
+  nextHandle++;
+  auto& bundleEntry = static_cast<BundleEntry&>(*pairIt->second);
+  bundleEntry.setName(name);
+  bundleEntry.setPath(path);
+  bundleEntry.setRecursive(recursive);
+  bundleEntry.setRandomPlay(true);
+  reloadBundle(pairIt->first);
+  auto& parentEntry = static_cast<ContainerEntry&>(*parentIt->second);
+  // TODO: Check if index is valid
+  parentEntry.addChild(index, pairIt->second.get());
+  return pairIt->first;
+}
+
+void Soundboard::reloadBundle(EntryHandle bundleHandle) {
+  if (bundleHandle == InvalidEntryHandle) {
+    return;
+  }
+  auto it = entries.find(bundleHandle);
+  if (it == entries.end() || it->second->type != PlayableEntry::Type::Bundle) {
+    return;
+  }
+  auto& bundleEntry = static_cast<BundleEntry&>(*it->second);
+  if (bundleEntry.getPath().empty()) {
+    return;
+  }
+  std::error_code ec;
+  if (!std::filesystem::is_directory(bundleEntry.getPath(), ec) || ec) {
+    return;
+  }
+  // Clear existing children by index
+  for (int i = bundleEntry.getChildren().size() - 1; i >= 0; --i) {
+    deleteEntryViaParent(bundleHandle, i);
+  }
+  size_t currentIndex = 0;
+  EntryHandle newHandle = InvalidEntryHandle;
+  for (const auto& dirEntry :
+       std::filesystem::directory_iterator(bundleEntry.getPath(), ec)) {
+    if (ec) {
+      continue;
+    }
+    if (dirEntry.is_regular_file()) {
+      newHandle =
+          newSoundFile(dirEntry.path(), dirEntry.path().filename().string(),
+                       bundleHandle, bundleEntry.getChildren().size());
+      if (newHandle != InvalidEntryHandle) {
+        currentIndex++;
+      }
+    } else if (dirEntry.is_directory() && bundleEntry.isRecursive()) {
+      newHandle = newBundle(dirEntry.path().filename().string(), bundleHandle,
+                            bundleEntry.getChildren().size(),
+                            dirEntry.path().string(), true);
+      if (newHandle != InvalidEntryHandle) {
+        auto newBundleIt = entries.find(newHandle);
+        if (newBundleIt != entries.end() &&
+            newBundleIt->second->type == PlayableEntry::Type::Bundle) {
+          BundleEntry* newBundlePtr =
+              static_cast<BundleEntry*>(newBundleIt->second.get());
+          bundleEntry.setChildWeight(currentIndex,
+                                     newBundlePtr->getWeightSum());
+          currentIndex++;
+        }
+      }
+    }
+  }
+}
+
 EntryHandle Soundboard::newSoundFile(std::filesystem::path path,
                                      const std::string& name,
                                      EntryHandle parentHandle, size_t index) {

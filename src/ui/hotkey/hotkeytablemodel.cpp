@@ -33,7 +33,7 @@ QVariant HotkeyTableModel::data(const QModelIndex& index, int role) const {
     break;
   case Qt::BackgroundRole:
     if (r.conflict) {
-      return QBrush(QColor(255, 200, 200));
+      return QBrush(QColor(255, 0, 0, 255 * 0.2));
     }
     break;
   case Qt::TextAlignmentRole:
@@ -433,6 +433,7 @@ void HotkeyTableModel::loadFromRows(const QList<HotkeyRow>& newRows) {
   beginInsertRows(QModelIndex(), 0, newRows.size() - 1);
   rows = newRows;
   endInsertRows();
+  checkAllConflicts();
 }
 CategoryHandle
 HotkeyTableModel::nameToCategoryHandle(const std::string& name) const {
@@ -446,10 +447,7 @@ HotkeyTableModel::nameToCategoryHandle(const std::string& name) const {
 void HotkeyTableModel::loadFromModel(HotkeyTableModel* model) {
   if (model) {
     loadFromRows(model->getRows());
-    for (const auto& [handle, name] : model->getCategoryNames()) {
-      // Ignore handles, just add names
-      addCategoryName(name);
-    }
+    setCategoryNames(model->getCategoryNames());
     cleanCategories();
   }
 }

@@ -44,6 +44,8 @@ public:
 
   CategoryHandle nameToCategoryHandle(const std::string& name) const;
 
+  QString actionToString(const HotkeyAction& action) const;
+
   void setCategoryAt(int row, CategoryHandle category);
   void setCategoryAt(int row, const std::string& categoryName);
   void setKeyDataAt(int row, const sb::hotkey::Hotkey& hotkey);
@@ -65,6 +67,5 @@ private:
   CategoryHandle addCategoryName(const std::string& name, CategoryHandle hint);
   void checkAllConflicts();
   bool checkConflictAt(int a, int b) const;
-  QString actionToString(const HotkeyAction& action) const;
 };
 #endif // HOTKEYTABLEMODEL_H

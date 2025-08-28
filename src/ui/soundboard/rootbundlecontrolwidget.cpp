@@ -29,6 +29,8 @@ RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,
           &RootBundleControlWidget::playRequested);
   connect(ui->rootBundleFrame, &RootBundleFrame::weightChangeRequested, this,
           &RootBundleControlWidget::weightChangeRequested);
+  connect(ui->rootBundleFrame, &RootBundleFrame::syncWeightSumChangeRequested,
+          this, &RootBundleControlWidget::syncWeightSumChangeRequested);
   connect(ui->rootBundleFrame, &RootBundleFrame::deleteRequested, this,
           &RootBundleControlWidget::deleteRequested);
 }

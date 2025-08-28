@@ -19,6 +19,7 @@ signals:
   void entryDropped(int oldIndex, int newIndex);
   void filesDropped(const QList<QUrl>& urls, int index);
   void playRequested(sb::EntryHandle entry);
+  void syncWeightSumChangeRequested(sb::EntryHandle entry, bool sync);
   void weightChangeRequested(sb::EntryHandle parent, int index,
                              unsigned int weight);
 

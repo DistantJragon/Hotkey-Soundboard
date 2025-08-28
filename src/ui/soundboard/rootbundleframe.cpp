@@ -38,6 +38,8 @@ void RootBundleFrame::refreshChildrenDisplay(
               [this, parentHandle](int indexInParent, unsigned int weight) {
                 emit weightChangeRequested(parentHandle, indexInParent, weight);
               });
+      connect(entryFrame, &PlayableEntryFrame::syncWeightSumChangeRequested,
+              this, &RootBundleFrame::syncWeightSumChangeRequested);
       entryLayout->addWidget(entryFrame);
     }
   }

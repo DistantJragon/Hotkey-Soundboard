@@ -125,11 +125,14 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
   }
   case sb::PlayableEntry::Type::Bundle: {
     if (!entryObj.contains("randomPlay") || !entryObj["randomPlay"].isBool() ||
-        !entryObj.contains("recursive") || !entryObj["recursive"].isBool()) {
+        !entryObj.contains("recursive") || !entryObj["recursive"].isBool() ||
+        !entryObj.contains("syncWeightSum") ||
+        !entryObj["syncWeightSum"].isBool()) {
       return false;
     }
     bool randomPlay = entryObj["randomPlay"].toBool();
     bool recursive = entryObj["recursive"].toBool();
+    bool syncWeightSum = entryObj["syncWeightSum"].toBool();
     if (parent == sb::InvalidEntryHandle) {
       newHandle = soundboard.newBundle(name);
     } else {
@@ -150,6 +153,11 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
     if (newHandle == sb::InvalidEntryHandle) {
       return false;
     }
+    sb::BundleEntry* bundleEntry =
+        static_cast<sb::BundleEntry*>(soundboard.getEntry(newHandle));
+    bundleEntry->setRandomPlay(randomPlay);
+    bundleEntry->setRecursive(recursive);
+    bundleEntry->setSyncWeightSum(syncWeightSum);
     handleMap_[oldHandle] = newHandle;
     if (!path.empty()) {
       return true;
@@ -157,8 +165,6 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
       if (!entryObj.contains("children") || !entryObj["children"].isArray()) {
         return false;
       }
-      sb::BundleEntry* bundleEntry =
-          static_cast<sb::BundleEntry*>(soundboard.getEntry(newHandle));
       if (!bundleEntry) {
         return false;
       }
@@ -411,6 +417,7 @@ ConfigManager::createEntryObject(const sb::PlayableEntry* entry) const {
         static_cast<const sb::BundleEntry*>(entry);
     entryObj["randomPlay"] = bundleEntry->isRandomPlay();
     entryObj["recursive"] = bundleEntry->isRecursive();
+    entryObj["syncWeightSum"] = bundleEntry->isSyncWeightSum();
     if (!entry->getPath().empty()) {
       // If the bundle has a path, we don't need to save its children
       break;

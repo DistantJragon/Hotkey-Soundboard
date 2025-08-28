@@ -112,24 +112,18 @@ void Soundboard::reloadBundle(EntryHandle bundleHandle) {
     if (dirEntry.is_regular_file()) {
       newHandle =
           newSoundFile(dirEntry.path(), dirEntry.path().filename().string(),
-                       bundleHandle, bundleEntry.getChildren().size());
+                       bundleHandle, currentIndex);
       if (newHandle != InvalidEntryHandle) {
         currentIndex++;
       }
     } else if (dirEntry.is_directory() && bundleEntry.isRecursive()) {
       newHandle = newBundle(dirEntry.path().filename().string(), bundleHandle,
-                            bundleEntry.getChildren().size(),
-                            dirEntry.path().string(), true);
+                            currentIndex, dirEntry.path().string(), true);
       if (newHandle != InvalidEntryHandle) {
-        auto newBundleIt = entries.find(newHandle);
-        if (newBundleIt != entries.end() &&
-            newBundleIt->second->type == PlayableEntry::Type::Bundle) {
-          BundleEntry* newBundlePtr =
-              static_cast<BundleEntry*>(newBundleIt->second.get());
-          bundleEntry.setChildWeight(currentIndex,
-                                     newBundlePtr->getWeightSum());
-          currentIndex++;
-        }
+        BundleEntry* newBundleEntry =
+            static_cast<BundleEntry*>(getEntry(newHandle));
+        newBundleEntry->setSyncWeightSum(true);
+        currentIndex++;
       }
     }
   }

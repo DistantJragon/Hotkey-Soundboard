@@ -27,6 +27,9 @@ void BundleEntry::addChild(size_t index, PlayableEntry* entry) {
   }
   children.insert(children.begin() + index, entry);
   weightSum += entry->getWeight();
+  if (syncWeightSum) {
+    weight = weightSum;
+  }
 }
 
 void BundleEntry::rotateEntries(size_t firstIndex, size_t middleIndex,
@@ -37,6 +40,16 @@ void BundleEntry::rotateEntries(size_t firstIndex, size_t middleIndex,
   }
   std::rotate(children.begin() + firstIndex, children.begin() + middleIndex,
               children.begin() + lastIndex);
+}
+
+void BundleEntry::recalculateWeightSum() {
+  weightSum = 0;
+  for (const auto& entry : children) {
+    weightSum += entry->getWeight();
+  }
+  if (syncWeightSum) {
+    weight = weightSum;
+  }
 }
 
 audio::SoundHandle BundleEntry::playRandom(std::mt19937& randomEngine) {
@@ -72,6 +85,9 @@ void BundleEntry::setChildWeight(size_t index, unsigned int weight) {
   if (index < children.size()) {
     weightSum += weight - children[index]->getWeight();
     children[index]->setWeight(weight);
+    if (syncWeightSum) {
+      this->weight = weightSum;
+    }
   }
 }
 
@@ -80,6 +96,9 @@ void BundleEntry::setChildWeight(PlayableEntry* entry, unsigned int weight) {
   if (it != children.end()) {
     weightSum += weight - (*it)->getWeight();
     (*it)->setWeight(weight);
+    if (syncWeightSum) {
+      this->weight = weightSum;
+    }
   }
 }
 
@@ -87,6 +106,9 @@ void BundleEntry::removeChild(size_t index) {
   if (index < children.size()) {
     weightSum -= children[index]->getWeight();
     children.erase(children.begin() + index);
+    if (syncWeightSum) {
+      weight = weightSum;
+    }
   }
 }
 void BundleEntry::removeChild(PlayableEntry* entry) {
@@ -94,6 +116,17 @@ void BundleEntry::removeChild(PlayableEntry* entry) {
   if (it != children.end()) {
     weightSum -= (*it)->getWeight();
     children.erase(it);
+    if (syncWeightSum) {
+      weight = weightSum;
+    }
   }
 }
+
+void BundleEntry::setSyncWeightSum(bool sync) {
+  syncWeightSum = sync;
+  if (sync) {
+    weight = weightSum;
+  }
+}
+
 } // namespace sb

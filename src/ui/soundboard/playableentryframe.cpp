@@ -1,6 +1,8 @@
 #include "ui/soundboard/playableentryframe.h"
+#include "core/soundboard/bundleentry.h"
 #include "ui_playableentryframe.h"
 #include <QDrag>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
@@ -31,6 +33,9 @@ PlayableEntryFrame::PlayableEntryFrame(QWidget* parent,
     switch (entry->type) {
     case sb::PlayableEntry::Type::Bundle:
       ui->entryButton->setText("B");
+      ui->weightSpinBox->setEnabled(
+          !static_cast<sb::BundleEntry*>(entry)->isSyncWeightSum());
+      ui->weightSpinBox->setValue(entry->getWeight());
       break;
     case sb::PlayableEntry::Type::SoundFile:
       ui->entryButton->setText("F");
@@ -39,6 +44,7 @@ PlayableEntryFrame::PlayableEntryFrame(QWidget* parent,
       ui->entryButton->setText("S");
       break;
     }
+    createActions(entry->type);
   }
 }
 
@@ -87,6 +93,17 @@ void PlayableEntryFrame::mouseMoveEvent(QMouseEvent* event) {
   drag->exec(Qt::MoveAction);
 }
 
+void PlayableEntryFrame::contextMenuEvent(QContextMenuEvent* event) {
+  QMenu contextMenu(this);
+  if (toggleRecursiveAction) {
+    contextMenu.addAction(toggleRecursiveAction);
+  }
+  if (toggleSyncWeightSumAction) {
+    contextMenu.addAction(toggleSyncWeightSumAction);
+  }
+  contextMenu.exec(event->globalPos());
+}
+
 void PlayableEntryFrame::confirmDelete() {
   QMessageBox::StandardButton reply;
   reply = QMessageBox::question(
@@ -95,5 +112,26 @@ void PlayableEntryFrame::confirmDelete() {
       QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
   if (reply == QMessageBox::Yes) {
     emit deleteRequested(this->entry->getHandle());
+  }
+}
+
+void PlayableEntryFrame::createActions(sb::PlayableEntry::Type type) {
+  if (type == sb::PlayableEntry::Type::Bundle) {
+    toggleRecursiveAction = new QAction("Toggle Recursive", this);
+    toggleRecursiveAction->setCheckable(true);
+    toggleRecursiveAction->setChecked(
+        static_cast<sb::BundleEntry*>(entry)->isRecursive());
+    // TODO: Connect action
+
+    toggleSyncWeightSumAction = new QAction("Toggle Sync Weight Sum", this);
+    toggleSyncWeightSumAction->setCheckable(true);
+    toggleSyncWeightSumAction->setChecked(
+        static_cast<sb::BundleEntry*>(entry)->isSyncWeightSum());
+    connect(toggleSyncWeightSumAction, &QAction::toggled, this,
+            [this](bool checked) {
+              emit syncWeightSumChangeRequested(entry->getHandle(), checked);
+              ui->weightSpinBox->setEnabled(!checked);
+              ui->weightSpinBox->setValue(entry->getWeight());
+            });
   }
 }

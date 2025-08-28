@@ -39,6 +39,7 @@ public slots:
   void changeEntryWeight(sb::EntryHandle parent, int index,
                          unsigned int weight);
   void changeRandomPlay(sb::EntryHandle entry, bool randomPlay);
+  void changeSyncWeightSum(sb::EntryHandle entry, bool sync);
   void checkNewRootBundleName(const QString& name);
   void deleteEntry(sb::EntryHandle entry);
   void hideRootBundle(sb::EntryHandle entry);

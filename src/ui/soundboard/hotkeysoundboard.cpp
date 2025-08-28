@@ -245,6 +245,39 @@ void HotkeySoundboard::changeRandomPlay(sb::EntryHandle entry,
   bundleEntry->setRandomPlay(randomPlay);
 }
 
+void HotkeySoundboard::changeSyncWeightSum(sb::EntryHandle entry, bool sync) {
+  if (!soundboard->isValidEntry(entry)) {
+    qWarning("Cannot change sync weight sum of an invalid entry.");
+    return;
+  }
+  sb::PlayableEntry* entryPtr = soundboard->getEntry(entry);
+  if (!entryPtr) {
+    qWarning("Failed to retrieve entry for handle '%d'.", entry);
+    return;
+  }
+  if (entryPtr->type != sb::PlayableEntry::Type::Bundle) {
+    qWarning("Entry is not a bundle.");
+    return;
+  }
+  sb::BundleEntry* bundleEntry = static_cast<sb::BundleEntry*>(entryPtr);
+  bundleEntry->setSyncWeightSum(sync);
+  if (bundleEntry->getParentHandle() != sb::InvalidEntryHandle) {
+    sb::PlayableEntry* parentPtr =
+        soundboard->getEntry(bundleEntry->getParentHandle());
+    if (!parentPtr) {
+      qWarning("Failed to retrieve parent entry for handle '%d'.",
+               bundleEntry->getParentHandle());
+      return;
+    }
+    if (parentPtr->type != sb::PlayableEntry::Type::Bundle) {
+      qWarning("Parent entry is not a bundle.");
+      return;
+    }
+    sb::BundleEntry* parentBundle = static_cast<sb::BundleEntry*>(parentPtr);
+    parentBundle->recalculateWeightSum();
+  }
+}
+
 void HotkeySoundboard::newRootBundle() {
   sb::EntryHandle newBundleHandle = soundboard->newBundle(BundleDefaults::NAME);
   if (newBundleHandle == sb::InvalidEntryHandle) {

@@ -1,5 +1,6 @@
 #include "ui/soundboard/rootbundlecontrolwidget.h"
 #include "ui_rootbundlecontrolwidget.h"
+#include <QMessageBox>
 
 RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,
                                                  sb::EntryHandle entry)
@@ -8,6 +9,10 @@ RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,
 
   connect(ui->nameLabel, &ClickableLabel::doubleClicked, this,
           [this]() { emit renameRequested(this->entry); });
+  connect(ui->hideButton, &QPushButton::clicked, this,
+          [this]() { emit hideRequested(this->entry); });
+  connect(ui->deleteRootBundleButton, &QPushButton::clicked, this,
+          &RootBundleControlWidget::confirmDelete);
   connect(ui->rootBundleFrame, &RootBundleFrame::filesDropped, this,
           [this](const QList<QUrl>& urls, int index) {
             emit filesDropped(this->entry, urls, index);
@@ -24,4 +29,15 @@ void RootBundleControlWidget::refreshRootBundleDisplay(
   ui->randomPlayCheckBox->setChecked(entry.isRandomPlay());
   ui->rootBundleFrame->refreshChildrenDisplay(entry.getChildren());
   this->updateGeometry();
+}
+
+void RootBundleControlWidget::confirmDelete() {
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(
+      this, "Confirm Delete",
+      "Are you sure you want to delete this bundle and all its contents?",
+      QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+  if (reply == QMessageBox::Yes) {
+    emit deleteRequested(this->entry);
+  }
 }

@@ -38,6 +38,9 @@ private:
   Ui::RootBundleControlWidget* ui;
   QVBoxLayout* playableEntryLayout = nullptr;
   const sb::EntryHandle entry;
+
+private slots:
+  void confirmDelete();
 };
 
 #endif // ROOTBUNDLECONTROLWIDGET_H

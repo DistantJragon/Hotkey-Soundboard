@@ -3,10 +3,10 @@
 
 #include "core/soundboard/bundleentry.h"
 #include "core/soundboard/soundboardtypes.h"
-#include "qboxlayout.h"
 #include <QFrame>
 #include <QList>
 #include <QUrl>
+#include <QVBoxLayout>
 
 namespace Ui {
 class RootBundleControlWidget;

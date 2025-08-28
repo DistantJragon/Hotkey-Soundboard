@@ -72,6 +72,22 @@ public:
   void renameEntry(EntryHandle entry, const std::string& newName);
 
   /*!
+   * \brief Sets the weight of an entry.
+   * \param entry The handle to the entry to set the weight for.
+   * \param weight The new weight for the entry.
+   */
+  void setEntryWeight(EntryHandle entry, unsigned int weight);
+
+  /*!
+   * \brief Sets the weight of an entry via its parent.
+   * \param parent The handle of the parent entry.
+   * \param index The index of the entry in the parent's list.
+   * \param weight The new weight for the entry.
+   */
+  void setEntryWeightViaParent(EntryHandle parent, size_t index,
+                               unsigned int weight);
+
+  /*!
    * \brief Deletes an entry from the soundboard.
    * \param entry The handle to the entry to delete.
    */

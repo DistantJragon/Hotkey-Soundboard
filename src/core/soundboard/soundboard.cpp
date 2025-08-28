@@ -175,6 +175,40 @@ void Soundboard::renameEntry(EntryHandle entry, const std::string& newName) {
   it->second->setName(newName);
 }
 
+void Soundboard::setEntryWeight(EntryHandle entry, unsigned int newWeight) {
+  if (entry == InvalidEntryHandle) {
+    return;
+  }
+  auto it = entries.find(entry);
+  if (it == entries.end()) {
+    return;
+  }
+  if (it->second->getParentHandle() == InvalidEntryHandle) {
+    return;
+  }
+  auto parentIt = entries.find(it->second->getParentHandle());
+  if (parentIt == entries.end() ||
+      PlayableEntry::isContainerType(parentIt->second->type) == false) {
+    return;
+  }
+  auto& parentEntry = static_cast<ContainerEntry&>(*parentIt->second);
+  parentEntry.setChildWeight(it->second.get(), newWeight);
+}
+
+void Soundboard::setEntryWeightViaParent(EntryHandle parent, size_t index,
+                                         unsigned int newWeight) {
+  if (parent == InvalidEntryHandle) {
+    return;
+  }
+  auto it = entries.find(parent);
+  if (it == entries.end() ||
+      PlayableEntry::isContainerType(it->second->type) == false) {
+    return;
+  }
+  auto& parentEntry = static_cast<ContainerEntry&>(*it->second);
+  parentEntry.setChildWeight(index, newWeight);
+}
+
 void Soundboard::deleteEntry(EntryHandle entry) {
   if (entry == InvalidEntryHandle) {
     return;

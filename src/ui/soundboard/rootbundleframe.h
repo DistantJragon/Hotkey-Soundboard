@@ -15,8 +15,12 @@ public:
   void refreshChildrenDisplay(const std::vector<sb::PlayableEntry*>& children);
 
 signals:
+  void deleteRequested(sb::EntryHandle entry);
+  void entryDropped(int oldIndex, int newIndex);
   void filesDropped(const QList<QUrl>& urls, int index);
   void playRequested(sb::EntryHandle entry);
+  void weightChangeRequested(sb::EntryHandle parent, int index,
+                             unsigned int weight);
 
 protected:
   void dragEnterEvent(QDragEnterEvent* event) override;
@@ -27,6 +31,7 @@ protected:
 private:
   QVBoxLayout* entryLayout = nullptr;
   int dividerIndex = -1;
+  int grabbedIndex = -1;
 
   /*!
    * \brief Converts a vertical position to an index in the layout.
@@ -36,6 +41,7 @@ private:
    * \return The index of the widget at that position, or -1 if the layout is
    * not set.
    */
+
   int positionToIndex(int yPos) const;
 
   /*!

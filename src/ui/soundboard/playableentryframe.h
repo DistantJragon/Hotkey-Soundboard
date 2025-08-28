@@ -13,14 +13,30 @@ class PlayableEntryFrame : public QFrame {
 
 public:
   explicit PlayableEntryFrame(QWidget* parent = nullptr,
-                              sb::PlayableEntry* entry = nullptr);
+                              sb::PlayableEntry* entry = nullptr,
+                              int indexInParent = -1);
   ~PlayableEntryFrame();
 
+  sb::PlayableEntry* getEntry() const { return entry; }
+
 signals:
+  void deleteRequested(sb::EntryHandle entry);
   void playRequested(sb::EntryHandle entry);
+  void renameRequested(sb::EntryHandle entry, const std::string& newName);
+  void weightChangeRequested(int index, unsigned int weight);
+
+protected:
+  void mousePressEvent(QMouseEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+
+private slots:
+  void confirmDelete();
 
 private:
   Ui::PlayableEntryFrame* ui;
+  sb::PlayableEntry* entry = nullptr;
+  int indexInParent = -1;
+  QPointF dragStartPosition;
 };
 
 #endif // PLAYABLEENTRYFRAME_H

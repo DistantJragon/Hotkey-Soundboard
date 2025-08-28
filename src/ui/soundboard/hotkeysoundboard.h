@@ -35,10 +35,14 @@ public:
 public slots:
   void addEntriesFromFiles(sb::EntryHandle entry, const QList<QUrl>& urls,
                            int index = -1);
+  void changeEntryWeight(sb::EntryHandle parent, int index,
+                         unsigned int weight);
+  void changeRandomPlay(sb::EntryHandle entry, bool randomPlay);
   void checkNewRootBundleName(const QString& name);
-  void deleteRootBundle(sb::EntryHandle entry);
+  void deleteEntry(sb::EntryHandle entry);
   void hideRootBundle(sb::EntryHandle entry);
   void loadHotkeyModel(HotkeyTableModel* model);
+  void moveEntry(sb::EntryHandle parent, int oldIndex, int newIndex);
   void newRootBundle();
   void onCategoriesChanged(QList<CategoryHandle> added,
                            QList<CategoryHandle> removed);
@@ -63,7 +67,6 @@ private:
 #else
   // TODO: D-Bus
 #endif // Q_OS_WIN
-  CategoryHandle currentCategory = InvalidCategoryHandle;
   QWidget* rootBundleContainerWidget = nullptr;
   FlowLayout* rootBundleFlowLayout = nullptr;
   RenameRootBundleDialog* renameRootBundleDialog = nullptr;
@@ -71,6 +74,7 @@ private:
   std::unordered_map<sb::EntryHandle, RootBundleControlWidget>
       rootBundleControlWidgets;
   std::unordered_set<std::string> rootBundleNames;
+  CategoryHandle currentCategory = InvalidCategoryHandle;
 
   void setupHotkeyModel();
 
@@ -85,6 +89,14 @@ private:
                             const std::filesystem::path& path, int index,
                             bool recursive = false);
 
+  /*! \brief Loads a root bundle control widget from an entry
+   *
+   * This function creates and adds a RootBundleControlWidget to the flow layout
+   * for the given root bundle entry.
+   * \param entry The handle of the root bundle entry.
+   */
+  void loadRootBundleControlWidgetFromEntry(sb::EntryHandle entry);
+
   bool rootBundleNameCompare(const std::string& name1,
                              const std::string& name2) const;
 
@@ -98,6 +110,14 @@ private:
    */
   int rootBundleWidgetLowerBound(const sb::EntryHandle rootBundle) const;
 
+  /*! \brief Returns the index of the root bundle widget in the flow layout
+   *
+   * This function returns the index of a root bundle widget in the flow layout.
+   * \param rootBundle The root bundle to find.
+   * \param from The index to start searching from. Default is 0.
+   * \return The index of the root bundle widget in the flow layout.
+   * If the root bundle is not found, it returns -1.
+   */
   int rootBundleWidgetIndexOf(const sb::EntryHandle rootBundle,
                               int from = 0) const;
 
@@ -110,7 +130,19 @@ private:
    */
   bool removeRootBundleWidget(const sb::EntryHandle rootBundle);
 
+  /*! \brief Reloads all hotkeys
+   *
+   * This function reloads all hotkeys to reflect any changes in the hotkey
+   * model.
+   */
   void reloadAllHotkeys();
+
+  /*! \brief Reloads all root bundle control widgets
+   *
+   * This function reloads all root bundle control widgets to reflect any
+   * changes in the soundboard.
+   */
+  void reloadRootBundleControlWidgets();
 
   /*! \brief Converts a HotkeyAction to a callable function
    *

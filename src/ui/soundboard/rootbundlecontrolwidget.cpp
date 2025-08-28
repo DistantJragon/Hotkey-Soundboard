@@ -13,12 +13,24 @@ RootBundleControlWidget::RootBundleControlWidget(QWidget* parent,
           [this]() { emit hideRequested(this->entry); });
   connect(ui->deleteRootBundleButton, &QPushButton::clicked, this,
           &RootBundleControlWidget::confirmDelete);
+  connect(ui->randomPlayCheckBox, &QCheckBox::checkStateChanged, this,
+          [this](int state) {
+            emit changeRandomPlayRequested(this->entry, state == Qt::Checked);
+          });
   connect(ui->rootBundleFrame, &RootBundleFrame::filesDropped, this,
           [this](const QList<QUrl>& urls, int index) {
             emit filesDropped(this->entry, urls, index);
           });
+  connect(ui->rootBundleFrame, &RootBundleFrame::entryDropped, this,
+          [this](int oldIndex, int newIndex) {
+            emit entryDropped(this->entry, oldIndex, newIndex);
+          });
   connect(ui->rootBundleFrame, &RootBundleFrame::playRequested, this,
           &RootBundleControlWidget::playRequested);
+  connect(ui->rootBundleFrame, &RootBundleFrame::weightChangeRequested, this,
+          &RootBundleControlWidget::weightChangeRequested);
+  connect(ui->rootBundleFrame, &RootBundleFrame::deleteRequested, this,
+          &RootBundleControlWidget::deleteRequested);
 }
 
 RootBundleControlWidget::~RootBundleControlWidget() { delete ui; }

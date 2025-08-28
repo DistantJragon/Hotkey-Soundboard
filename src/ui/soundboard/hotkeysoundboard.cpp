@@ -99,6 +99,66 @@ void HotkeySoundboard::changeCategory(CategoryHandle category) {
   }
 }
 
+void HotkeySoundboard::loadRootBundleControlWidgetFromEntry(
+    sb::EntryHandle entry) {
+  if (!soundboard->isValidEntry(entry)) {
+    qWarning("Cannot load a root bundle control widget from an invalid entry.");
+    return;
+  }
+  auto it = rootBundleControlWidgets.find(entry);
+  if (it != rootBundleControlWidgets.end()) {
+    qWarning("Root bundle control widget for entry already exists.");
+    return;
+  }
+  sb::PlayableEntry* entryPtr = soundboard->getEntry(entry);
+  if (!entryPtr) {
+    qWarning("Failed to retrieve entry for handle '%d'.", entry);
+    return;
+  }
+  if (entryPtr->type != sb::PlayableEntry::Type::Bundle ||
+      entryPtr->getParentHandle() != sb::InvalidEntryHandle) {
+    qWarning("Entry is not a root bundle.");
+    return;
+  }
+  sb::BundleEntry* bundleEntry = static_cast<sb::BundleEntry*>(entryPtr);
+  auto result = rootBundleControlWidgets.try_emplace(
+      entry, rootBundleContainerWidget, entry);
+  if (result.second) {
+    RootBundleControlWidget& newWidget = result.first->second;
+    connect(&newWidget, &RootBundleControlWidget::renameRequested, this,
+            &HotkeySoundboard::openRenameRootBundleDialog);
+    connect(&newWidget, &RootBundleControlWidget::hideRequested, this,
+            &HotkeySoundboard::hideRootBundle);
+    connect(&newWidget, &RootBundleControlWidget::deleteRequested, this,
+            &HotkeySoundboard::deleteEntry);
+    connect(&newWidget, &RootBundleControlWidget::changeRandomPlayRequested,
+            this, &HotkeySoundboard::changeRandomPlay);
+    connect(&newWidget, &RootBundleControlWidget::refreshRequested, this,
+            &HotkeySoundboard::refreshRootBundleDisplay);
+    connect(&newWidget, &RootBundleControlWidget::filesDropped, this,
+            &HotkeySoundboard::addEntriesFromFiles);
+    connect(&newWidget, &RootBundleControlWidget::entryDropped, this,
+            &HotkeySoundboard::moveEntry);
+    connect(&newWidget, &RootBundleControlWidget::playRequested, this,
+            &HotkeySoundboard::playEntry);
+    connect(&newWidget, &RootBundleControlWidget::weightChangeRequested, this,
+            &HotkeySoundboard::changeEntryWeight);
+    std::string bundleName = bundleEntry->getName();
+    if (isRootBundleNameValid(bundleName)) {
+      rootBundleNames.insert(bundleName);
+    } else {
+      bundleEntry->setName(BundleDefaults::NAME);
+    }
+    rootBundleFlowLayout->insertWidget(rootBundleWidgetLowerBound(entry),
+                                       &newWidget);
+    newWidget.refreshRootBundleDisplay(*bundleEntry);
+    newWidget.show();
+  } else {
+    qWarning("Failed to create a new root bundle control widget. ID already "
+             "exists.");
+  }
+}
+
 void HotkeySoundboard::reloadAllHotkeys() {
   hotkeyManager->unregisterAllHotkeys();
   CategoryHandle cat = currentCategory;
@@ -116,7 +176,7 @@ HotkeySoundboard::hotkeyActionToFunction(const HotkeyAction& action) {
     return [this, action](void*) { playEntry(action.targetEntry); };
   case HotkeyAction::Type::StopEntry:
     // TODO
-    return [this, action](void*) {};
+    return [](void*) {};
   case HotkeyAction::Type::StopAll:
     return [this](void*) { soundboard->stopAllEntries(); };
   case HotkeyAction::Type::None:
@@ -131,41 +191,46 @@ void HotkeySoundboard::onCategoriesChanged(QList<CategoryHandle> added,
   for (CategoryHandle cat : removed) {
     if (cat == currentCategory) {
       changeCategory(GlobalCategoryHandle);
+      break;
     }
   }
 }
 
+void HotkeySoundboard::changeEntryWeight(sb::EntryHandle parent, int index,
+                                         unsigned int newWeight) {
+  if (!soundboard->isValidEntry(parent)) {
+    qWarning("Cannot change weight of an invalid entry.");
+    return;
+  }
+  soundboard->setEntryWeightViaParent(parent, index, newWeight);
+}
+
+void HotkeySoundboard::changeRandomPlay(sb::EntryHandle entry,
+                                        bool randomPlay) {
+  if (!soundboard->isValidEntry(entry)) {
+    qWarning("Cannot change random play of an invalid entry.");
+    return;
+  }
+  sb::PlayableEntry* entryPtr = soundboard->getEntry(entry);
+  if (!entryPtr) {
+    qWarning("Failed to retrieve entry for handle '%d'.", entry);
+    return;
+  }
+  if (entryPtr->type != sb::PlayableEntry::Type::Bundle) {
+    qWarning("Entry is not a bundle.");
+    return;
+  }
+  sb::BundleEntry* bundleEntry = static_cast<sb::BundleEntry*>(entryPtr);
+  bundleEntry->setRandomPlay(randomPlay);
+}
+
 void HotkeySoundboard::newRootBundle() {
-  sb::EntryHandle nextHandle = soundboard->getNextHandle();
-  auto result = rootBundleControlWidgets.try_emplace(
-      nextHandle, rootBundleContainerWidget,
-      soundboard->newBundle(BundleDefaults::NAME));
-  if (result.second) {
-    RootBundleControlWidget& newWidget = result.first->second;
-    sb::BundleEntry* bundleEntry =
-        static_cast<sb::BundleEntry*>(soundboard->getEntry(nextHandle));
-    if (!bundleEntry) {
-      qWarning("Failed to retrieve bundle entry for handle '%d'.", nextHandle);
-      rootBundleControlWidgets.erase(nextHandle);
-      return;
-    }
-    connect(&newWidget, &RootBundleControlWidget::renameRequested, this,
-            &HotkeySoundboard::openRenameRootBundleDialog);
-    connect(&newWidget, &RootBundleControlWidget::deleteRequested, this,
-            &HotkeySoundboard::deleteRootBundle);
-    connect(&newWidget, &RootBundleControlWidget::hideRequested, this,
-            &HotkeySoundboard::hideRootBundle);
-    connect(&newWidget, &RootBundleControlWidget::refreshRequested, this,
-            &HotkeySoundboard::refreshRootBundleDisplay);
-    connect(&newWidget, &RootBundleControlWidget::filesDropped, this,
-            &HotkeySoundboard::addEntriesFromFiles);
-    connect(&newWidget, &RootBundleControlWidget::playRequested, this,
-            &HotkeySoundboard::playEntry);
-    rootBundleFlowLayout->insertWidget(0, &newWidget);
-    newWidget.refreshRootBundleDisplay(*bundleEntry);
-    newWidget.show();
+  sb::EntryHandle newBundleHandle = soundboard->newBundle(BundleDefaults::NAME);
+  if (newBundleHandle == sb::InvalidEntryHandle) {
+    qWarning("Failed to create a new root bundle.");
+    return;
   } else {
-    qWarning("Failed to create a new sound group. ID already exists.");
+    loadRootBundleControlWidgetFromEntry(newBundleHandle);
   }
 }
 
@@ -223,23 +288,34 @@ void HotkeySoundboard::renameRootBundle(sb::EntryHandle entry,
   widget.show();
 }
 
-void HotkeySoundboard::deleteRootBundle(sb::EntryHandle rootBundle) {
-  if (!soundboard->isValidEntry(rootBundle)) {
+void HotkeySoundboard::deleteEntry(sb::EntryHandle entry) {
+  if (!soundboard->isValidEntry(entry)) {
     qWarning("Cannot delete an invalid sound group.");
     return;
   }
-  bool removeResult = removeRootBundleWidget(rootBundle);
-  if (!removeResult) {
-    qWarning("Failed to find sound group widget to delete.");
-    return;
+  sb::PlayableEntry* entryPtr = soundboard->getEntry(entry);
+  sb::EntryHandle parentHandle = entryPtr->getParentHandle();
+  soundboard->deleteEntry(entry);
+  bool removeResult = removeRootBundleWidget(entry);
+  if (removeResult) {
+    rootBundleFlowLayout->invalidate();
+    int eraseResult = rootBundleControlWidgets.erase(entry);
+    if (eraseResult == 0) {
+      qWarning("Failed to remove sound group widget from the map.");
+      return;
+    }
+  } else {
+    if (!soundboard->isValidEntry(parentHandle)) {
+      qWarning("Failed to remove root bundle widget before deleting entry.");
+      return;
+    }
+    auto parentPairIt = rootBundleControlWidgets.find(parentHandle);
+    if (parentPairIt == rootBundleControlWidgets.end()) {
+      return;
+    }
+    parentPairIt->second.refreshRootBundleDisplay(
+        *static_cast<sb::BundleEntry*>(soundboard->getEntry(parentHandle)));
   }
-  rootBundleFlowLayout->invalidate();
-  int eraseResult = rootBundleControlWidgets.erase(rootBundle);
-  if (eraseResult == 0) {
-    qWarning("Failed to remove sound group widget from the map.");
-    return;
-  }
-  soundboard->deleteEntry(rootBundle);
 }
 
 void HotkeySoundboard::hideRootBundle(sb::EntryHandle rootBundle) {
@@ -252,8 +328,9 @@ void HotkeySoundboard::hideRootBundle(sb::EntryHandle rootBundle) {
     qWarning("Failed to find sound group widget to hide.");
     return;
   }
-  it->second.hide();
-  rootBundleFlowLayout->invalidate();
+  // TODO: Implement hide functionality
+  // it->second.hide();
+  // rootBundleFlowLayout->invalidate();
 }
 
 void HotkeySoundboard::showRootBundle(sb::EntryHandle rootBundle) {
@@ -302,10 +379,16 @@ void HotkeySoundboard::openRenameRootBundleDialog(sb::EntryHandle rootBundle) {
 }
 
 void HotkeySoundboard::openHotkeyManagerDialog() {
+  if (!hotkeyModel) {
+    qWarning("Hotkey model is not initialized.");
+    return;
+  }
+  hotkeyManager->unregisterAllHotkeys();
   HotkeyManagerDialog hotkeyManagerDialog(this, soundboard.get(), hotkeyModel);
   if (hotkeyManagerDialog.exec() == QDialog::Accepted) {
     loadHotkeyModel(hotkeyManagerDialog.getHotkeyModel());
   }
+  reloadAllHotkeys();
 }
 
 void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,
@@ -324,11 +407,47 @@ void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,
     qWarning("Invalid index for adding files to the sound group.");
     return;
   }
+  bool allPressed = false;
+  bool yesToAll = false;
   for (const QUrl& url : urls) {
     if (url.isLocalFile()) {
       std::filesystem::path path = url.toLocalFile().toStdString();
       if (std::filesystem::is_directory(path)) {
-        if (addDirectoryFromFile(entry, path, index)) {
+        bool recursive = false;
+        if (!allPressed) {
+          QMessageBox::StandardButton reply;
+          reply = QMessageBox::question(
+              this, "Add Directory",
+              QString("Do you want to recursively add all files from '%1'?")
+                  .arg(QString::fromStdString(path.string())),
+              QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No |
+                  QMessageBox::NoToAll | QMessageBox::Cancel);
+          switch (reply) {
+          case QMessageBox::YesToAll:
+            allPressed = true;
+            yesToAll = true;
+            [[fallthrough]];
+          case QMessageBox::Yes:
+            recursive = true;
+            break;
+          case QMessageBox::NoToAll:
+            allPressed = true;
+            yesToAll = false;
+            [[fallthrough]];
+          case QMessageBox::No:
+            recursive = false;
+            break;
+          case QMessageBox::Cancel:
+            qDebug("Add entries operation was canceled.");
+            return;
+          default:
+            qWarning("Unexpected response from message box.");
+            return;
+          }
+        } else {
+          recursive = yesToAll;
+        }
+        if (addDirectoryFromFile(entry, path, index, recursive)) {
           ++index;
         }
       } else if (addSoundFileFromFile(entry, path, index)) {
@@ -395,35 +514,12 @@ bool HotkeySoundboard::addDirectoryFromFile(sb::EntryHandle entry,
     qWarning("Invalid index for adding a directory to the sound group.");
     return false;
   }
-  sb::EntryHandle newHandle =
-      soundboard->newBundle(path.filename().string(), entry, index);
+  sb::EntryHandle newHandle = soundboard->newBundle(
+      path.filename().string(), entry, index, path.string(), recursive);
   if (newHandle == sb::InvalidEntryHandle) {
     qWarning("Failed to add new bundle for directory '%s' to the sound group.",
              path.string().c_str());
     return false;
-  }
-  sb::BundleEntry* bundlePtr =
-      static_cast<sb::BundleEntry*>(soundboard->getEntry(newHandle));
-  bundlePtr->setPath(path.string());
-  bool shouldRecursivelyAdd = false;
-  if (!recursive) {
-    // If not recursive by parameter, ask the user
-    // If they say no, no directories will be added and the message box
-    // won't need to be shown again (unless more directories were dropped)
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(
-        this, "Add Directory",
-        QString("Do you want to recursively add all files from '%1'?")
-            .arg(QString::fromStdString(path.string())),
-        QMessageBox::Yes | QMessageBox::No);
-    shouldRecursivelyAdd = (reply == QMessageBox::Yes);
-  }
-  for (const auto& dirEntry : std::filesystem::directory_iterator(path)) {
-    if (dirEntry.is_directory() && shouldRecursivelyAdd) {
-      addDirectoryFromFile(newHandle, dirEntry.path(), 0, true);
-    } else if (dirEntry.is_regular_file()) {
-      addSoundFileFromFile(newHandle, dirEntry.path(), 0);
-    }
   }
   auto it = rootBundleControlWidgets.find(entry);
   if (it != rootBundleControlWidgets.end()) {
@@ -450,12 +546,50 @@ void HotkeySoundboard::loadHotkeyModel(HotkeyTableModel* model) {
   }
   hotkeyModel->loadFromRows(model->getRows());
   hotkeyModel->setCategoryNames(model->getCategoryNames());
-  reloadAllHotkeys();
 }
 
 void HotkeySoundboard::checkNewRootBundleName(const QString& name) {
   renameRootBundleDialog->setValidName(
       isRootBundleNameValid(name.toStdString()));
+}
+
+void HotkeySoundboard::moveEntry(sb::EntryHandle parent, int oldIndex,
+                                 int newIndex) {
+  if (!soundboard->isValidEntry(parent)) {
+    qWarning("Cannot move an invalid entry.");
+    return;
+  }
+  if (newIndex < 0 || oldIndex < 0) {
+    qWarning("Invalid index for moving an entry.");
+    return;
+  }
+  if (parent == sb::InvalidEntryHandle) {
+    qWarning("Entry has no valid parent.");
+    return;
+  }
+  sb::ContainerEntry* parentEntry =
+      static_cast<sb::ContainerEntry*>(soundboard->getEntry(parent));
+  if (oldIndex < newIndex) {
+    parentEntry->rotateEntries(oldIndex, oldIndex + 1, newIndex + 1);
+  } else {
+    parentEntry->rotateEntries(newIndex, oldIndex, oldIndex + 1);
+  }
+  auto it = rootBundleControlWidgets.find(parent);
+  if (it != rootBundleControlWidgets.end()) {
+    sb::BundleEntry* bundlePtr =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(parent));
+    it->second.refreshRootBundleDisplay(*bundlePtr);
+    qDebug("Moved entry from index %d to %d in the bundle.", oldIndex,
+           newIndex);
+  } else {
+#ifndef HKSBNDEBUG
+    sb::BundleEntry* bundlePtr =
+        static_cast<sb::BundleEntry*>(soundboard->getEntry(parent));
+    if (bundlePtr->getParentHandle() == sb::InvalidEntryHandle) {
+      qWarning("Failed to find root bundle control widget to refresh.");
+    }
+#endif // HKSBNDEBUG
+  }
 }
 
 bool HotkeySoundboard::rootBundleNameCompare(const std::string& name1,
@@ -571,4 +705,20 @@ void HotkeySoundboard::on_actionCreate_New_Bundle_triggered() {
 
 void HotkeySoundboard::on_actionOpen_Hotkey_Manager_triggered() {
   openHotkeyManagerDialog();
+}
+
+void HotkeySoundboard::reloadRootBundleControlWidgets() {
+  // Remove all existing widgets from layout and rootBundleControlWidgets map,
+  // then rebuild
+  for (auto& pair : rootBundleControlWidgets) {
+    removeRootBundleWidget(pair.first);
+  }
+  rootBundleControlWidgets.clear();
+  rootBundleNames.clear();
+  for (const auto& [handle, entryPtr] : soundboard->getEntries()) {
+    if (entryPtr->type == sb::PlayableEntry::Type::Bundle &&
+        entryPtr->getParentHandle() == sb::InvalidEntryHandle) {
+      loadRootBundleControlWidgetFromEntry(handle);
+    }
+  }
 }

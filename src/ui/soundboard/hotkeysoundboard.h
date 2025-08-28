@@ -4,6 +4,7 @@
 #include "adapters/qt/audio/basicaudioengine.h"
 #include "core/soundboard/soundboard.h"
 #include "core/soundboard/soundboardtypes.h"
+#include "persistence/configmanager.h"
 #include "ui/flowlayout.h"
 #include "ui/hotkey/hotkeytablemodel.h"
 #include "ui/soundboard/renamerootbundledialog.h"
@@ -53,12 +54,16 @@ public slots:
   void renameRootBundle(sb::EntryHandle entry, const std::string newName);
   void showRootBundle(sb::EntryHandle entry);
 
+protected:
+  void closeEvent(QCloseEvent* event) override;
+
 private slots:
   void on_actionCreate_New_Bundle_triggered();
 
   void on_actionOpen_Hotkey_Manager_triggered();
 
 private:
+  ConfigManager configManager;
   Ui::HotkeySoundboard* ui;
   std::unique_ptr<sb::adapters::qt::BasicAudioEngine> engine;
   std::unique_ptr<sb::Soundboard> soundboard;
@@ -81,6 +86,8 @@ private:
   void setupRootBundleContainerWidget();
 
   void setupRootBundleRenameDialog();
+
+  void loadConfig();
 
   bool addSoundFileFromFile(sb::EntryHandle entry,
                             const std::filesystem::path& path, int index);

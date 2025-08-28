@@ -11,7 +11,6 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
   ui->setupUi(this);
   engine = std::make_unique<sb::adapters::qt::BasicAudioEngine>();
-  // TODO: load soundboard state from file
   soundboard = std::make_unique<sb::Soundboard>(engine.get());
 #ifdef Q_OS_WIN
   hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>();
@@ -21,6 +20,7 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
   setupHotkeyModel();
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();
+  loadConfig();
 #ifndef HKSBNDEBUG
   // sb::hotkey::Hotkey hotkey;
   // hotkey.humanReadable = "Shift+B";
@@ -66,6 +66,27 @@ void HotkeySoundboard::setupRootBundleRenameDialog() {
   connect(renameRootBundleDialog,
           &RenameRootBundleDialog::renameDialogTextEdited, this,
           &HotkeySoundboard::checkNewRootBundleName);
+}
+
+void HotkeySoundboard::loadConfig() {
+  QList<HotkeyRow> loadedHotkeyRows;
+  std::unordered_map<CategoryHandle, std::string> loadedCategoryNames;
+  soundboard->clear();
+  configManager.readConfigFile();
+  bool result = configManager.loadConfig(*soundboard, loadedHotkeyRows,
+                                         loadedCategoryNames);
+  if (!result) {
+    QMessageBox::warning(this, "Error",
+                         "Failed to load configuration file. Starting with "
+                         "default configuration.");
+    soundboard->clear();
+  } else {
+    hotkeyModel->loadFromRows(loadedHotkeyRows);
+    hotkeyModel->setCategoryNames(loadedCategoryNames);
+  }
+  currentCategory = InvalidCategoryHandle;
+  changeCategory(GlobalCategoryHandle);
+  reloadRootBundleControlWidgets();
 }
 
 bool HotkeySoundboard::isRootBundleNameValid(const std::string& name) const {
@@ -345,6 +366,14 @@ void HotkeySoundboard::showRootBundle(sb::EntryHandle rootBundle) {
   }
   it->second.show();
   rootBundleFlowLayout->invalidate();
+}
+
+void HotkeySoundboard::closeEvent(QCloseEvent* event) {
+  configManager.saveConfig(*soundboard, hotkeyModel->getRows(),
+                           hotkeyModel->getCategoryNames());
+  hotkeyManager->unregisterAllHotkeys();
+  soundboard->stopAllEntries();
+  QMainWindow::closeEvent(event);
 }
 
 void HotkeySoundboard::openRenameRootBundleDialog(sb::EntryHandle rootBundle) {

@@ -74,6 +74,15 @@ void BundleEntry::setChildWeight(size_t index, unsigned int weight) {
     children[index]->setWeight(weight);
   }
 }
+
+void BundleEntry::setChildWeight(PlayableEntry* entry, unsigned int weight) {
+  auto it = std::find(children.begin(), children.end(), entry);
+  if (it != children.end()) {
+    weightSum += weight - (*it)->getWeight();
+    (*it)->setWeight(weight);
+  }
+}
+
 void BundleEntry::removeChild(size_t index) {
   if (index < children.size()) {
     weightSum -= children[index]->getWeight();

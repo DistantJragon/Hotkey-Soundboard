@@ -15,6 +15,7 @@ public:
 
   void addChild(size_t index, PlayableEntry* entry) override;
   void setChildWeight(size_t index, unsigned int weight) override;
+  void setChildWeight(PlayableEntry* entry, unsigned int weight) override;
   void removeChild(size_t index) override;
   void removeChild(PlayableEntry* entry) override;
 

@@ -12,13 +12,14 @@ public:
 
   virtual void addChild(size_t index, PlayableEntry* entry) = 0;
   virtual void setChildWeight(size_t index, unsigned int weight) = 0;
+  virtual void setChildWeight(PlayableEntry* entry, unsigned int weight) = 0;
   virtual void removeChild(size_t index) = 0;
   virtual void removeChild(PlayableEntry* entry) = 0;
 
   /*! \brief Rotates entries within the bundle.
    *
-   * This function moves entries [firstIndex, middleIndex) to lastIndex and
-   * [middleIndex, lastIndex) to firstIndex.]
+   * This function moves entries [middleIndex, lastIndex) to firstIndex,
+   * shifting [firstIndex, middleIndex) to the right.
    * \param firstIndex The starting index of the range to slide.
    * \param middleIndex The index at which the entries will be split.
    * \param lastIndex The index where the first part will be moved to.

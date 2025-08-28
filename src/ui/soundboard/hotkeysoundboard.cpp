@@ -316,8 +316,8 @@ void HotkeySoundboard::deleteEntry(sb::EntryHandle entry) {
   }
   sb::PlayableEntry* entryPtr = soundboard->getEntry(entry);
   sb::EntryHandle parentHandle = entryPtr->getParentHandle();
-  soundboard->deleteEntry(entry);
   bool removeResult = removeRootBundleWidget(entry);
+  soundboard->deleteEntry(entry);
   if (removeResult) {
     rootBundleFlowLayout->invalidate();
     int eraseResult = rootBundleControlWidgets.erase(entry);

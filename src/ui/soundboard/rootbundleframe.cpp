@@ -1,11 +1,9 @@
-#include "rootbundleframe.h"
+#include "ui/soundboard/rootbundleframe.h"
+#include "ui/soundboard/playableentryframe.h"
 #include <QDropEvent>
 #include <QLayoutItem>
 #include <QMimeData>
 
-#ifndef HKSBNDEBUG
-#include "ui/soundboard/playableentryframe.h"
-#endif
 
 RootBundleFrame::RootBundleFrame(QWidget* parent) : QFrame(parent) {
   entryLayout = new QVBoxLayout(this);

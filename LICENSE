@@ -1,3 +1,9 @@
+All source code in this repository is licensed under GPLv3 except for the
+following files, for which more information is provided in the LICENSES
+directory:
+src/ui/flowlayout.h
+src/ui/flowlayout.cpp
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 

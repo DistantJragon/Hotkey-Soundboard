@@ -32,11 +32,13 @@ qrc_*.cpp
 Thumbs.db
 *.res
 *.rc
+
 /.qmake.cache
 /.qmake.stash
 /compile_commands.json
 /.cache
 /.clang-format
+/dist/
 
 # qtcreator generated files
 *.pro.user*

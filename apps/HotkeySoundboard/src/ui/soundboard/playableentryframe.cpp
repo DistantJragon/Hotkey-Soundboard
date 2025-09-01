@@ -17,12 +17,10 @@ PlayableEntryFrame::PlayableEntryFrame(QWidget* parent,
   if (entry) {
     ui->nameLabel->setText(QString::fromStdString(entry->getName()));
     ui->weightSpinBox->setValue(entry->getWeight());
-#ifndef HKSBNDEBUG
     connect(ui->entryButton, &QPushButton::clicked, this,
             [this, entryHandle = entry->getHandle()]() {
               emit playRequested(entryHandle);
             });
-#endif // HKSBNDEBUG
     connect(ui->weightSpinBox, &QSpinBox::valueChanged, this,
             [this](int value) {
               emit weightChangeRequested(this->indexInParent,

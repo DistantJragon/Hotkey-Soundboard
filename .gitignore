@@ -35,10 +35,11 @@ Thumbs.db
 
 /.qmake.cache
 /.qmake.stash
-/compile_commands.json
+compile_commands.json
 /.cache
 /.clang-format
 /dist/
+build/
 
 # qtcreator generated files
 *.pro.user*

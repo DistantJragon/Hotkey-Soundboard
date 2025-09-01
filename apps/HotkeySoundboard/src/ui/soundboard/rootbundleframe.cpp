@@ -4,7 +4,6 @@
 #include <QLayoutItem>
 #include <QMimeData>
 
-
 RootBundleFrame::RootBundleFrame(QWidget* parent) : QFrame(parent) {
   entryLayout = new QVBoxLayout(this);
 }
@@ -46,19 +45,19 @@ void RootBundleFrame::refreshChildrenDisplay(
 void RootBundleFrame::dragEnterEvent(QDragEnterEvent* event) {
 
 #ifndef HKSBNDEBUG
-  auto formats = event->mimeData()->formats();
-  QString mimeTypes = "Mime types:";
-  for (const auto& format : formats) {
-    mimeTypes += "\n" + format;
-  }
-  qDebug("%s", mimeTypes.toStdString().c_str());
-  if (event->mimeData()->hasUrls()) {
-    QString paths = "Paths:";
-    for (const auto& url : event->mimeData()->urls()) {
-      paths += "\n" + url.toLocalFile();
-    }
-    qDebug("%s", paths.toStdString().c_str());
-  }
+  // auto formats = event->mimeData()->formats();
+  // QString mimeTypes = "Mime types:";
+  // for (const auto& format : formats) {
+  //   mimeTypes += "\n" + format;
+  // }
+  // qDebug("%s", mimeTypes.toStdString().c_str());
+  // if (event->mimeData()->hasUrls()) {
+  //   QString paths = "Paths:";
+  //   for (const auto& url : event->mimeData()->urls()) {
+  //     paths += "\n" + url.toLocalFile();
+  //   }
+  //   qDebug("%s", paths.toStdString().c_str());
+  // }
 #endif // HKSBNDEBUG
 
   // TODO: Check if this works on non-Windows platforms

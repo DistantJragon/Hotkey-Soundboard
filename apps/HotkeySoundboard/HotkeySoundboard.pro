@@ -38,7 +38,6 @@ SOURCES += \
     src/ui/soundboard/playableentryframe.cpp \
     src/ui/soundboard/renamerootbundledialog.cpp \
     src/ui/soundboard/rootbundleframe.cpp \
-    src/ui/soundboard/soundentrywidget.cpp \
     src/ui/soundboard/rootbundlecontrolwidget.cpp
 
 HEADERS += \
@@ -71,7 +70,6 @@ HEADERS += \
     src/ui/soundboard/playableentryframe.h \
     src/ui/soundboard/renamerootbundledialog.h \
     src/ui/soundboard/rootbundleframe.h \
-    src/ui/soundboard/soundentrywidget.h \
     src/ui/soundboard/rootbundlecontrolwidget.h
 
 FORMS += \

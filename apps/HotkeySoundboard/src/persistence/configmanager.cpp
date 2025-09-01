@@ -169,7 +169,7 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
         return false;
       }
       bundleEntry->setRandomPlay(randomPlay);
-      QJsonArray childrenArray = entryObj["children"].toArray();
+      const QJsonArray childrenArray = entryObj["children"].toArray();
       for (const QJsonValue& childVal : childrenArray) {
         if (!childVal.isObject()) {
           return false;
@@ -187,6 +187,8 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
     // String entries are not supported yet
     return false;
   }
+  default:
+    return false;
   }
 }
 

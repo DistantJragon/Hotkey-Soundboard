@@ -22,8 +22,8 @@ SOURCES += \
     src/core/soundboard/soundboard.cpp \
     src/core/soundboard/soundfileentry.cpp \
     src/persistence/configmanager.cpp \
+    src/thirdparty/flowlayout.cpp \
     src/ui/clickablelabel.cpp \
-    src/ui/flowlayout.cpp \
     src/ui/hotkey/actionchooserdialog.cpp \
     src/ui/hotkey/actiondelegate.cpp \
     src/ui/hotkey/categorychooserdialog.cpp \
@@ -52,8 +52,8 @@ HEADERS += \
     src/core/soundboard/soundfileentry.h \
     src/core/soundboard/exceptions.h \
     src/persistence/configmanager.h \
+    src/thirdparty/flowlayout.h \
     src/ui/clickablelabel.h \
-    src/ui/flowlayout.h \
     src/ui/hotkey/actionchooserdialog.h \
     src/ui/hotkey/actiondelegate.h \
     src/ui/hotkey/categorychooserdialog.h \

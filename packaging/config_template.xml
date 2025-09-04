@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+  <Name>Hotkey Soundboard</Name>
+  <Version>1.0.0</Version>
+  <Title>Hotkey Soundboard Installer</Title>
+  <Publisher>DistantJragons</Publisher>
+  <StartMenuDir>Hotkey Soundboard</StartMenuDir>
+  <TargetDir>@HomeDir@/HotkeySoundboard</TargetDir>
+  <RemoteRepositories>
+    <Repository>
+      <Url>https://distantjragon.net/hotkeysoundboard/repos/windows-x86_64/repository</Url>
+    </Repository>
+  </RemoteRepositories>
+</Installer>

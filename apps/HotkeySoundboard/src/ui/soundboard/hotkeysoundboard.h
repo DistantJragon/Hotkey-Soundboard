@@ -5,7 +5,7 @@
 #include "core/soundboard/soundboard.h"
 #include "core/soundboard/soundboardtypes.h"
 #include "persistence/configmanager.h"
-#include "ui/flowlayout.h"
+#include "thirdparty/qtflowlayoutexample/flowlayout.h"
 #include "ui/hotkey/hotkeytablemodel.h"
 #include "ui/soundboard/renamerootbundledialog.h"
 #include "ui/soundboard/rootbundlecontrolwidget.h"

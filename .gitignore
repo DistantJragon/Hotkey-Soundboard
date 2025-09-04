@@ -33,13 +33,14 @@ Thumbs.db
 *.res
 *.rc
 
-/.qmake.cache
-/.qmake.stash
+.qmake.cache
+.qmake.stash
 compile_commands.json
-/.cache
-/.clang-format
+.cache
+.clang-format
 /dist/
 build/
+/packaging/windows/AddTools.ps1
 
 # qtcreator generated files
 *.pro.user*

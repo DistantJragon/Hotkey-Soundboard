@@ -9,6 +9,7 @@
 #include "ui/hotkey/hotkeytablemodel.h"
 #include "ui/soundboard/renamerootbundledialog.h"
 #include "ui/soundboard/rootbundlecontrolwidget.h"
+#include "ui/soundboard/soundboardupdater.h"
 #include <QMainWindow>
 
 #ifdef Q_OS_WIN
@@ -44,11 +45,13 @@ public slots:
   void deleteEntry(sb::EntryHandle entry);
   void hideRootBundle(sb::EntryHandle entry);
   void loadHotkeyModel(HotkeyTableModel* model);
+  void loadOptions(const QMap<QString, QVariant>& options);
   void moveEntry(sb::EntryHandle parent, int oldIndex, int newIndex);
   void newRootBundle();
   void onCategoriesChanged(QList<CategoryHandle> added,
                            QList<CategoryHandle> removed);
   void openHotkeyManagerDialog();
+  void openOptionsDialog();
   void openRenameRootBundleDialog(sb::EntryHandle entry);
   void playEntry(sb::EntryHandle entry);
   void refreshRootBundleDisplay(sb::EntryHandle entry);
@@ -57,11 +60,6 @@ public slots:
 
 protected:
   void closeEvent(QCloseEvent* event) override;
-
-private slots:
-  void on_actionCreate_New_Bundle_triggered();
-
-  void on_actionOpen_Hotkey_Manager_triggered();
 
 private:
   ConfigManager configManager;
@@ -77,18 +75,24 @@ private:
   FlowLayout* rootBundleFlowLayout = nullptr;
   RenameRootBundleDialog* renameRootBundleDialog = nullptr;
   HotkeyTableModel* hotkeyModel = nullptr;
+  SoundboardUpdater* updater = nullptr;
   std::unordered_map<sb::EntryHandle, RootBundleControlWidget>
       rootBundleControlWidgets;
   std::unordered_set<std::string> rootBundleNames;
   CategoryHandle currentCategory = InvalidCategoryHandle;
 
+  void setupActions();
   void setupHotkeyModel();
-
   void setupRootBundleContainerWidget();
-
   void setupRootBundleRenameDialog();
+  void setupUpdater();
+
+  void checkFirstTimeStartup();
 
   void loadConfig();
+  void saveConfig();
+
+  QMap<QString, QVariant> loadCurrentOptions() const;
 
   bool addSoundFileFromFile(sb::EntryHandle entry,
                             const std::filesystem::path& path, int index);
@@ -96,6 +100,8 @@ private:
   bool addDirectoryFromFile(sb::EntryHandle entry,
                             const std::filesystem::path& path, int index,
                             bool recursive = false);
+
+  void configureUpdater();
 
   /*! \brief Loads a root bundle control widget from an entry
    *

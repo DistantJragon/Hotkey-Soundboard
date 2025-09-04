@@ -35,10 +35,12 @@ SOURCES += \
     src/ui/hotkey/hotkeytablemodel.cpp \
     src/ui/hotkey/platkeysequenceedit.cpp \
     src/ui/soundboard/hotkeysoundboard.cpp \
+    src/ui/soundboard/optionsdialog.cpp \
     src/ui/soundboard/playableentryframe.cpp \
     src/ui/soundboard/renamerootbundledialog.cpp \
     src/ui/soundboard/rootbundleframe.cpp \
-    src/ui/soundboard/rootbundlecontrolwidget.cpp
+    src/ui/soundboard/rootbundlecontrolwidget.cpp \
+    src/ui/soundboard/soundboardupdater.cpp
 
 HEADERS += \
     src/adapters/qt/audio/basicaudioengine.h \
@@ -67,10 +69,12 @@ HEADERS += \
     src/ui/hotkey/platkeysequenceedit.h \
     src/ui/soundboard/bundledefaults.h \
     src/ui/soundboard/hotkeysoundboard.h \
+    src/ui/soundboard/optionsdialog.h \
     src/ui/soundboard/playableentryframe.h \
     src/ui/soundboard/renamerootbundledialog.h \
     src/ui/soundboard/rootbundleframe.h \
-    src/ui/soundboard/rootbundlecontrolwidget.h
+    src/ui/soundboard/rootbundlecontrolwidget.h \
+    src/ui/soundboard/soundboardupdater.h
 
 FORMS += \
     src/forms/actionchooserdialog.ui \
@@ -78,6 +82,7 @@ FORMS += \
     src/forms/hotkeycapturedialog.ui \
     src/forms/hotkeymanagerdialog.ui \
     src/forms/hotkeysoundboard.ui \
+    src/forms/optionsdialog.ui \
     src/forms/playableentryframe.ui \
     src/forms/renamerootbundledialog.ui \
     src/forms/rootbundlecontrolwidget.ui

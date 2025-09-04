@@ -4,8 +4,11 @@
 #include "core/soundboard/soundboardtypes.h"
 #include "ui/hotkey/hotkeymanagerdialog.h"
 #include "ui/soundboard/bundledefaults.h"
+#include "ui/soundboard/optionsdialog.h"
+#include "ui/soundboard/updaterdefaults.h"
 #include "ui_hotkeysoundboard.h"
 #include <QMessageBox>
+#include <QSettings>
 
 HotkeySoundboard::HotkeySoundboard(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::HotkeySoundboard) {
@@ -20,7 +23,10 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
   setupHotkeyModel();
   setupRootBundleContainerWidget();
   setupRootBundleRenameDialog();
+  setupActions();
+  setupUpdater();
   loadConfig();
+  checkFirstTimeStartup();
 #ifndef HKSBNDEBUG
   // sb::hotkey::Hotkey hotkey;
   // hotkey.humanReadable = "Shift+B";
@@ -42,6 +48,17 @@ HotkeySoundboard::~HotkeySoundboard() {
   delete rootBundleContainerWidget;
   delete renameRootBundleDialog;
   delete ui;
+}
+
+void HotkeySoundboard::setupActions() {
+  connect(ui->actionCreate_New_Bundle, &QAction::triggered, this,
+          &HotkeySoundboard::newRootBundle);
+  connect(ui->actionOpen_Hotkey_Manager, &QAction::triggered, this,
+          &HotkeySoundboard::openHotkeyManagerDialog);
+  connect(ui->actionSave, &QAction::triggered, this,
+          [this]() { saveConfig(); });
+  connect(ui->actionOptions, &QAction::triggered, this,
+          [this]() { openOptionsDialog(); });
 }
 
 void HotkeySoundboard::setupHotkeyModel() {
@@ -68,6 +85,76 @@ void HotkeySoundboard::setupRootBundleRenameDialog() {
           &HotkeySoundboard::checkNewRootBundleName);
 }
 
+void HotkeySoundboard::setupUpdater() {
+  QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
+                        "DistantJragon", "Hotkey Soundboard");
+  iniSettings.beginGroup("checkUpdate");
+  if (!iniSettings.contains("updateMetaUrl")) {
+    iniSettings.setValue("updateMetaUrl", UpdaterDefaults::UPDATE_META_URL);
+    iniSettings.sync();
+  }
+  QUrl updateMetaUrl(
+      iniSettings.value("updateMetaUrl", UpdaterDefaults::UPDATE_META_URL)
+          .toString());
+  updater = new SoundboardUpdater(updateMetaUrl, this);
+  bool checkOnStartup = iniSettings.value("atStartup", false).toBool();
+  iniSettings.endGroup();
+  connect(updater, &SoundboardUpdater::updateAvailable, this,
+          [this](const QString& latestVersion) {
+            QString msg =
+                QString("A new version (%1) is available!").arg(latestVersion);
+            QMessageBox::information(this, "Update Available", msg);
+          });
+  connect(updater, &SoundboardUpdater::error, this,
+          [this](const QString& errMsg) {
+            QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
+                                  "DistantJragon", "Hotkey Soundboard");
+            bool notifyErrors =
+                iniSettings.value("checkUpdates/notifyErrors", true).toBool();
+            if (notifyErrors) {
+              QMessageBox::warning(this, "Update Check Error", errMsg);
+            } else {
+              qWarning("Update check error: %s", qPrintable(errMsg));
+            }
+          });
+  if (checkOnStartup) {
+    updater->checkForUpdates();
+  }
+  configureUpdater();
+}
+
+void HotkeySoundboard::configureUpdater() {
+  QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
+                        "DistantJragon", "Hotkey Soundboard");
+  iniSettings.beginGroup("checkUpdate");
+  QUrl updateMetaUrl(
+      iniSettings.value("updateMetaUrl", UpdaterDefaults::UPDATE_META_URL)
+          .toString());
+  bool checkInterval = iniSettings.value("interval", false).toBool();
+  int intervalHours = iniSettings.value("intervalHours", 6).toInt();
+  iniSettings.endGroup();
+  updater->setUpdateMetaUrl(updateMetaUrl);
+  if (checkInterval) {
+    updater->startPeriodicUpdateChecks(intervalHours);
+  } else {
+    updater->stopPeriodicUpdateChecks();
+  }
+}
+
+void HotkeySoundboard::checkFirstTimeStartup() {
+  QSettings settings;
+  bool firstTime = !settings.value("hasBeenRun", false).toBool();
+  if (firstTime) {
+    settings.setValue("hasBeenRun", true);
+    settings.sync();
+    QMessageBox::information(
+        this, "Welcome to Hotkey Soundboard!",
+        "It looks like this is your first time running Hotkey Soundboard."
+        " Please take a look at the options to enable update checks."
+        " Check out the GitHub page for help or to report issues.");
+  }
+}
+
 void HotkeySoundboard::loadConfig() {
   QList<HotkeyRow> loadedHotkeyRows;
   std::unordered_map<CategoryHandle, std::string> loadedCategoryNames;
@@ -87,6 +174,31 @@ void HotkeySoundboard::loadConfig() {
   currentCategory = InvalidCategoryHandle;
   changeCategory(GlobalCategoryHandle);
   reloadRootBundleControlWidgets();
+}
+
+void HotkeySoundboard::saveConfig() {
+  QList<HotkeyRow> rows = hotkeyModel->getRows();
+  std::unordered_map<CategoryHandle, std::string> categoryNames =
+      hotkeyModel->getCategoryNames();
+  bool result = configManager.saveConfig(*soundboard, rows, categoryNames);
+  if (!result) {
+    QMessageBox::warning(this, "Error", "Failed to save configuration file.");
+  }
+}
+
+QMap<QString, QVariant> HotkeySoundboard::loadCurrentOptions() const {
+  QMap<QString, QVariant> options;
+  QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
+                        "DistantJragon", "Hotkey Soundboard");
+
+  const QStringList settingsKeys = iniSettings.allKeys();
+  for (const QString& key : settingsKeys) {
+    options.insert(key, iniSettings.value(key));
+    qDebug("Key: %s, Value: %s", qPrintable(key),
+           qPrintable(iniSettings.value(key).toString()));
+  }
+
+  return options;
 }
 
 bool HotkeySoundboard::isRootBundleNameValid(const std::string& name) const {
@@ -113,7 +225,7 @@ void HotkeySoundboard::changeCategory(CategoryHandle category) {
       hotkeyModel->setCallbackAt(i, hotkeyActionToFunction(row.action));
       sb::hotkey::HotkeyHandle handle =
           hotkeyManager->registerHotkey(hotkeyModel->getRows().at(i).hotkey);
-      qDebug("%d", handle);
+      qDebug("Registered hotkey with handle: %d", handle);
     } else {
       hotkeyModel->setCallbackAt(i, nullptr);
     }
@@ -193,7 +305,6 @@ HotkeySoundboard::hotkeyActionToFunction(const HotkeyAction& action) {
   case HotkeyAction::Type::ChangeCategory:
     return [this, action](void*) { changeCategory(action.targetCategory); };
   case HotkeyAction::Type::PlayEntry:
-    qDebug("Playing entry with handle: %d", action.targetEntry);
     return [this, action](void*) { playEntry(action.targetEntry); };
   case HotkeyAction::Type::StopEntry:
     // TODO
@@ -453,6 +564,16 @@ void HotkeySoundboard::openHotkeyManagerDialog() {
   reloadAllHotkeys();
 }
 
+void HotkeySoundboard::openOptionsDialog() {
+  QMap<QString, QVariant> currentOptions;
+  currentOptions = loadCurrentOptions();
+  OptionsDialog optionsDialog(currentOptions, this);
+  if (optionsDialog.exec() == QDialog::Accepted) {
+    const auto& newOptions = optionsDialog.getOptionsMap();
+    loadOptions(newOptions);
+  }
+}
+
 void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,
                                            const QList<QUrl>& urls, int index) {
   qDebug("Adding files to sound group with handle: %d at index: %d", entry,
@@ -610,6 +731,18 @@ void HotkeySoundboard::loadHotkeyModel(HotkeyTableModel* model) {
   hotkeyModel->setCategoryNames(model->getCategoryNames());
 }
 
+void HotkeySoundboard::loadOptions(const QMap<QString, QVariant>& options) {
+  QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
+                        "DistantJragon", "Hotkey Soundboard");
+
+  for (auto it = options.cbegin(); it != options.cend(); ++it) {
+    qDebug("Setting option '%s' to '%s'.", qPrintable(it.key()),
+           qPrintable(it.value().toString()));
+    iniSettings.setValue(it.key(), it.value());
+  }
+  configureUpdater();
+}
+
 void HotkeySoundboard::checkNewRootBundleName(const QString& name) {
   renameRootBundleDialog->setValidName(
       isRootBundleNameValid(name.toStdString()));
@@ -759,14 +892,6 @@ void HotkeySoundboard::playEntry(sb::EntryHandle entry) {
   } else {
     qWarning("Cannot play an invalid entry.");
   }
-}
-
-void HotkeySoundboard::on_actionCreate_New_Bundle_triggered() {
-  newRootBundle();
-}
-
-void HotkeySoundboard::on_actionOpen_Hotkey_Manager_triggered() {
-  openHotkeyManagerDialog();
 }
 
 void HotkeySoundboard::reloadRootBundleControlWidgets() {

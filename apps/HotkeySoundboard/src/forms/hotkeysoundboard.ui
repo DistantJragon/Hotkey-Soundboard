@@ -50,6 +50,10 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionSave"/>
+    <addaction name="actionOptions"/>
+    <addaction name="actionExport_App_State"/>
+    <addaction name="actionImport_App_State"/>
    </widget>
    <widget class="QMenu" name="menuGroups">
     <property name="title">
@@ -63,9 +67,16 @@
     </property>
     <addaction name="actionOpen_Hotkey_Manager"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuGroups"/>
    <addaction name="menuHotkeys"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionCreate_New_Bundle">
@@ -80,8 +91,48 @@
    </property>
   </action>
   <action name="actionOpen_Hotkey_Manager">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::InputKeyboard"/>
+   </property>
    <property name="text">
     <string>Open Hotkey Manager</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionExport_App_State">
+   <property name="text">
+    <string>Export App State</string>
+   </property>
+  </action>
+  <action name="actionImport_App_State">
+   <property name="text">
+    <string>Import App State</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::DocumentProperties"/>
+   </property>
+   <property name="text">
+    <string>Options</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::DialogInformation"/>
+   </property>
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

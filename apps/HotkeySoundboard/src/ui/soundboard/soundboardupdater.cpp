@@ -81,21 +81,21 @@ void SoundboardUpdater::stopPeriodicUpdateChecks() { updateCheckTimer->stop(); }
 
 int SoundboardUpdater::compareVersions(const QString& v1Str,
                                        const QString& v2Str) const {
-  qsizetype hyphenIndex1 = -1;
+  qsizetype hyphenIndex1 = 0;
   QVersionNumber ver1 = QVersionNumber::fromString(v1Str, &hyphenIndex1);
-  qsizetype hyphenIndex2 = -1;
+  qsizetype hyphenIndex2 = 0;
   QVersionNumber ver2 = QVersionNumber::fromString(v2Str, &hyphenIndex2);
   int cmp = QVersionNumber::compare(ver1, ver2);
   if (cmp != 0) {
     return cmp;
   } else {
     // Versions are equal barring suffix, compare suffixes if present
-    if (hyphenIndex1 == -1 && hyphenIndex2 == -1) {
+    if (hyphenIndex1 == v1Str.size() && hyphenIndex2 == v2Str.size()) {
       return 0;
-    } else if (hyphenIndex1 == -1) {
+    } else if (hyphenIndex1 == v1Str.size()) {
       // v1 has no suffix, considered greater
       return 1;
-    } else if (hyphenIndex2 == -1) {
+    } else if (hyphenIndex2 == v2Str.size()) {
       // v2 has no suffix, considered greater
       return -1;
     }

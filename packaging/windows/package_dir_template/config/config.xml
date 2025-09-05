@@ -3,12 +3,13 @@
   <Name>Hotkey Soundboard</Name>
   <Version>1.0.0</Version>
   <Title>Hotkey Soundboard Installer</Title>
-  <Publisher>DistantJragons</Publisher>
+  <Publisher>DistantJragon</Publisher>
   <StartMenuDir>Hotkey Soundboard</StartMenuDir>
-  <TargetDir>@HomeDir@/HotkeySoundboard</TargetDir>
+  <TargetDir>@HomeDir@/AppData/Local/DistantJragon/HotkeySoundboard</TargetDir>
   <RemoteRepositories>
     <Repository>
-      <Url>https://distantjragon.net/hotkeysoundboard/repos/windows-x86_64/repository</Url>
+      <Url>https://distantjragon.net/hotkeysoundboard/repos/windows-x86_64/stable/repository</Url>
     </Repository>
   </RemoteRepositories>
+  <WizardStyle>Modern</WizardStyle>
 </Installer>

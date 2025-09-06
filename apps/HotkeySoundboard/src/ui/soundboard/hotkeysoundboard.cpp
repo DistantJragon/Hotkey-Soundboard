@@ -7,7 +7,6 @@
 #include "ui/soundboard/optionsdialog.h"
 #include "ui/soundboard/updaterdefaults.h"
 #include "ui_hotkeysoundboard.h"
-#include <QMessageBox>
 #include <QSettings>
 
 HotkeySoundboard::HotkeySoundboard(QWidget* parent)
@@ -59,6 +58,8 @@ void HotkeySoundboard::setupActions() {
           [this]() { saveConfig(); });
   connect(ui->actionOptions, &QAction::triggered, this,
           [this]() { openOptionsDialog(); });
+  connect(ui->actionAbout, &QAction::triggered, this,
+          &HotkeySoundboard::openAboutDialog);
 }
 
 void HotkeySoundboard::setupHotkeyModel() {
@@ -93,6 +94,7 @@ void HotkeySoundboard::setupUpdater() {
     iniSettings.setValue("updateMetaUrl", UpdaterDefaults::UPDATE_META_URL);
     iniSettings.sync();
   }
+  iniSettings.setValue("ignoreForSession", false);
   QUrl updateMetaUrl(
       iniSettings.value("updateMetaUrl", UpdaterDefaults::UPDATE_META_URL)
           .toString());
@@ -100,27 +102,82 @@ void HotkeySoundboard::setupUpdater() {
   bool checkOnStartup = iniSettings.value("atStartup", false).toBool();
   iniSettings.endGroup();
   connect(updater, &SoundboardUpdater::updateAvailable, this,
-          [this](const QString& latestVersion) {
-            QString msg =
-                QString("A new version (%1) is available!").arg(latestVersion);
-            QMessageBox::information(this, "Update Available", msg);
-          });
+          &HotkeySoundboard::notifyNewUpdateAvailable);
   connect(updater, &SoundboardUpdater::error, this,
-          [this](const QString& errMsg) {
-            QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
-                                  "DistantJragon", "Hotkey Soundboard");
-            bool notifyErrors =
-                iniSettings.value("checkUpdates/notifyErrors", true).toBool();
-            if (notifyErrors) {
-              QMessageBox::warning(this, "Update Check Error", errMsg);
-            } else {
-              qWarning("Update check error: %s", qPrintable(errMsg));
-            }
-          });
+          &HotkeySoundboard::notifyUpdateError);
   if (checkOnStartup) {
     updater->checkForUpdates();
   }
   configureUpdater();
+}
+
+void HotkeySoundboard::notifyNewUpdateAvailable(const QString& version) {
+  if (newUpdateMessageBox) {
+    return;
+  }
+  newUpdateMessageBox = new QMessageBox(this);
+  newUpdateMessageBox->setIcon(QMessageBox::Information);
+  newUpdateMessageBox->setWindowTitle("Update Available");
+  newUpdateMessageBox->setText(
+      QString(
+          "A new version (%1) is available!"
+          "\nPlease run the included maintenance tool or visit the GitHub page"
+          " to download the latest version."
+          "\nClick \"Ignore\" to turn off update notifications this session.")
+          .arg(version));
+  newUpdateMessageBox->setStandardButtons(QMessageBox::Ok |
+                                          QMessageBox::Ignore);
+  newUpdateMessageBox->setDefaultButton(QMessageBox::Ok);
+  connect(newUpdateMessageBox, &QMessageBox::buttonClicked, this,
+          [this](QAbstractButton* button) {
+            if (newUpdateMessageBox->standardButton(button) ==
+                QMessageBox::Ignore) {
+              ignoreUpdatesForSession();
+            }
+            newUpdateMessageBox->deleteLater();
+            newUpdateMessageBox = nullptr;
+          });
+  newUpdateMessageBox->show();
+}
+
+void HotkeySoundboard::notifyUpdateError(const QString& error) {
+  qWarning("Update check error: %s", qPrintable(error));
+  if (updateErrorMessageBox) {
+    return;
+  }
+  updateErrorMessageBox = new QMessageBox(this);
+  updateErrorMessageBox->setIcon(QMessageBox::Warning);
+  updateErrorMessageBox->setWindowTitle("Update Check Error");
+  updateErrorMessageBox->setText(
+      QString(
+          "An error occurred while checking for updates:"
+          "\n%1"
+          "\nClick \"Ignore\" to turn off update notifications this session.")
+          .arg(error));
+  updateErrorMessageBox->setStandardButtons(QMessageBox::Ok |
+                                            QMessageBox::Ignore);
+  updateErrorMessageBox->setDefaultButton(QMessageBox::Ok);
+  connect(updateErrorMessageBox, &QMessageBox::buttonClicked, this,
+          [this](QAbstractButton* button) {
+            if (updateErrorMessageBox->standardButton(button) ==
+                QMessageBox::Ignore) {
+              ignoreUpdatesForSession();
+            }
+            updateErrorMessageBox->deleteLater();
+            updateErrorMessageBox = nullptr;
+          });
+  updateErrorMessageBox->show();
+}
+
+void HotkeySoundboard::ignoreUpdatesForSession() {
+  QSettings iniSettings(QSettings::IniFormat, QSettings::UserScope,
+                        "DistantJragon", "Hotkey Soundboard");
+  iniSettings.beginGroup("checkUpdate");
+  iniSettings.setValue("ignoreForSession", true);
+  iniSettings.endGroup();
+  if (updater) {
+    updater->stopPeriodicUpdateChecks();
+  }
 }
 
 void HotkeySoundboard::configureUpdater() {
@@ -131,10 +188,11 @@ void HotkeySoundboard::configureUpdater() {
       iniSettings.value("updateMetaUrl", UpdaterDefaults::UPDATE_META_URL)
           .toString());
   bool checkInterval = iniSettings.value("interval", false).toBool();
+  bool ignoreForSession = iniSettings.value("ignoreForSession", false).toBool();
   int intervalHours = iniSettings.value("intervalHours", 6).toInt();
   iniSettings.endGroup();
   updater->setUpdateMetaUrl(updateMetaUrl);
-  if (checkInterval) {
+  if (checkInterval && !ignoreForSession) {
     updater->startPeriodicUpdateChecks(intervalHours);
   } else {
     updater->stopPeriodicUpdateChecks();
@@ -572,6 +630,28 @@ void HotkeySoundboard::openOptionsDialog() {
     const auto& newOptions = optionsDialog.getOptionsMap();
     loadOptions(newOptions);
   }
+}
+
+void HotkeySoundboard::openAboutDialog() {
+  QMessageBox aboutBox(this);
+  QSettings settings;
+  QString version = settings.value("appVersion", "Error").toString();
+  aboutBox.setIcon(QMessageBox::Information);
+  aboutBox.setWindowTitle("About Hotkey Soundboard");
+  aboutBox.setTextFormat(Qt::RichText);
+  aboutBox.setText(
+      QString("<h2>Hotkey Soundboard</h2>"
+              "<p>A soundboard application with hotkey support.</p>"
+              "<p>Developed by Jacob Goodwin.</p>"
+              "<p>GitHub: "
+              "<a "
+              "href=\"https://github.com/DistantJragon/Hotkey-Soundboard\">"
+              "DistantJragon/Hotkey-Soundboard</a></p>"
+              "<p>Version: %1</p>")
+          .arg(version));
+  aboutBox.setStandardButtons(QMessageBox::Ok);
+  aboutBox.exec();
+  aboutBox.deleteLater();
 }
 
 void HotkeySoundboard::addEntriesFromFiles(sb::EntryHandle entry,

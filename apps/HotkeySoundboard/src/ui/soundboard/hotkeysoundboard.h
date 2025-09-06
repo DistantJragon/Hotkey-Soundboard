@@ -11,6 +11,7 @@
 #include "ui/soundboard/rootbundlecontrolwidget.h"
 #include "ui/soundboard/soundboardupdater.h"
 #include <QMainWindow>
+#include <QMessageBox>
 
 #ifdef Q_OS_WIN
 #include "adapters/qt/hotkey/winhotkeymanager.h"
@@ -44,12 +45,16 @@ public slots:
   void checkNewRootBundleName(const QString& name);
   void deleteEntry(sb::EntryHandle entry);
   void hideRootBundle(sb::EntryHandle entry);
+  void ignoreUpdatesForSession();
   void loadHotkeyModel(HotkeyTableModel* model);
   void loadOptions(const QMap<QString, QVariant>& options);
   void moveEntry(sb::EntryHandle parent, int oldIndex, int newIndex);
   void newRootBundle();
+  void notifyNewUpdateAvailable(const QString& version);
+  void notifyUpdateError(const QString& error);
   void onCategoriesChanged(QList<CategoryHandle> added,
                            QList<CategoryHandle> removed);
+  void openAboutDialog();
   void openHotkeyManagerDialog();
   void openOptionsDialog();
   void openRenameRootBundleDialog(sb::EntryHandle entry);
@@ -76,6 +81,8 @@ private:
   RenameRootBundleDialog* renameRootBundleDialog = nullptr;
   HotkeyTableModel* hotkeyModel = nullptr;
   SoundboardUpdater* updater = nullptr;
+  QMessageBox* newUpdateMessageBox = nullptr;
+  QMessageBox* updateErrorMessageBox = nullptr;
   std::unordered_map<sb::EntryHandle, RootBundleControlWidget>
       rootBundleControlWidgets;
   std::unordered_set<std::string> rootBundleNames;

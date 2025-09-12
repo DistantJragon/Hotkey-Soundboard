@@ -50,8 +50,10 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSave"/>
     <addaction name="actionOptions"/>
+    <addaction name="actionImport_App_State"/>
+    <addaction name="actionExport_App_State"/>
+    <addaction name="actionSave"/>
    </widget>
    <widget class="QMenu" name="menuGroups">
     <property name="title">
@@ -108,11 +110,17 @@
    </property>
   </action>
   <action name="actionExport_App_State">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Export App State</string>
    </property>
   </action>
   <action name="actionImport_App_State">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Import App State</string>
    </property>

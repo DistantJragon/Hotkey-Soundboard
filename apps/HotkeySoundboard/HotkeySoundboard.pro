@@ -24,12 +24,12 @@ SOURCES += \
     src/persistence/configmanager.cpp \
     src/thirdparty/qtflowlayoutexample/flowlayout.cpp \
     src/ui/clickablelabel.cpp \
-    src/ui/hotkey/actionchooserdialog.cpp \
-    src/ui/hotkey/actiondelegate.cpp \
-    src/ui/hotkey/categorychooserdialog.cpp \
-    src/ui/hotkey/categorydelegate.cpp \
+#    src/ui/hotkey/actionchooserdialog.cpp \
+#    src/ui/hotkey/actiondelegate.cpp \
+#    src/ui/hotkey/categorychooserdialog.cpp \
+#    src/ui/hotkey/categorydelegate.cpp \
     src/ui/hotkey/hotkeycapturedialog.cpp \
-    src/ui/hotkey/hotkeydelegate.cpp \
+#    src/ui/hotkey/hotkeydelegate.cpp \
     src/ui/hotkey/hotkeyeditbutton.cpp \
     src/ui/hotkey/hotkeymanagerdialog.cpp \
     src/ui/hotkey/hotkeytablemodel.cpp \
@@ -56,12 +56,12 @@ HEADERS += \
     src/persistence/configmanager.h \
     src/thirdparty/qtflowlayoutexample/flowlayout.h \
     src/ui/clickablelabel.h \
-    src/ui/hotkey/actionchooserdialog.h \
-    src/ui/hotkey/actiondelegate.h \
-    src/ui/hotkey/categorychooserdialog.h \
-    src/ui/hotkey/categorydelegate.h \
+#    src/ui/hotkey/actionchooserdialog.h \
+#    src/ui/hotkey/actiondelegate.h \
+#    src/ui/hotkey/categorychooserdialog.h \
+#    src/ui/hotkey/categorydelegate.h \
     src/ui/hotkey/hotkeycapturedialog.h \
-    src/ui/hotkey/hotkeydelegate.h \
+#    src/ui/hotkey/hotkeydelegate.h \
     src/ui/hotkey/hotkeyeditbutton.h \
     src/ui/hotkey/hotkeyguitypes.h \
     src/ui/hotkey/hotkeymanagerdialog.h \
@@ -107,4 +107,5 @@ RESOURCES += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
 

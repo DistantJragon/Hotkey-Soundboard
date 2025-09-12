@@ -334,6 +334,8 @@ void HotkeySoundboard::loadRootBundleControlWidgetFromEntry(
             &HotkeySoundboard::playEntry);
     connect(&newWidget, &RootBundleControlWidget::weightChangeRequested, this,
             &HotkeySoundboard::changeEntryWeight);
+    connect(&newWidget, &RootBundleControlWidget::syncWeightSumChangeRequested,
+            this, &HotkeySoundboard::changeSyncWeightSum);
     std::string bundleName = bundleEntry->getName();
     if (isRootBundleNameValid(bundleName)) {
       rootBundleNames.insert(bundleName);

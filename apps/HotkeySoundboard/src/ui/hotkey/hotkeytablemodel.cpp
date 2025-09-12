@@ -220,6 +220,8 @@ bool HotkeyTableModel::removeRows(int row, int count,
     rows.removeAt(row);
   }
   endRemoveRows();
+  cleanCategories();
+  checkAllConflicts();
   return true;
 }
 

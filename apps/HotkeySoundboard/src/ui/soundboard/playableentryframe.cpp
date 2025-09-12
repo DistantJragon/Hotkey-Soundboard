@@ -120,6 +120,7 @@ void PlayableEntryFrame::createActions(sb::PlayableEntry::Type type) {
     toggleRecursiveAction->setChecked(
         static_cast<sb::BundleEntry*>(entry)->isRecursive());
     // TODO: Connect action
+    toggleRecursiveAction->setEnabled(false);
 
     toggleSyncWeightSumAction = new QAction("Toggle Sync Weight Sum", this);
     toggleSyncWeightSumAction->setCheckable(true);

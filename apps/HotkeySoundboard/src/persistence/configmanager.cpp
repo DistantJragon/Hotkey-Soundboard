@@ -133,10 +133,11 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
     bool randomPlay = entryObj["randomPlay"].toBool();
     bool recursive = entryObj["recursive"].toBool();
     bool syncWeightSum = entryObj["syncWeightSum"].toBool();
+    sb::ContainerEntry* parentEntry = nullptr;
     if (parent == sb::InvalidEntryHandle) {
       newHandle = soundboard.newBundle(name);
     } else {
-      sb::ContainerEntry* parentEntry =
+      parentEntry =
           static_cast<sb::ContainerEntry*>(soundboard.getEntry(parent));
       if (!parentEntry ||
           !sb::PlayableEntry::isContainerType(parentEntry->type)) {
@@ -149,6 +150,8 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
         newHandle = soundboard.newBundle(
             name, parent, parentEntry->getChildren().size(), path, recursive);
       }
+      parentEntry->setChildWeight(parentEntry->getChildren().size() - 1,
+                                  weight);
     }
     if (newHandle == sb::InvalidEntryHandle) {
       return false;
@@ -158,6 +161,9 @@ bool ConfigManager::parseEntryObject(sb::Soundboard& soundboard,
     bundleEntry->setRandomPlay(randomPlay);
     bundleEntry->setRecursive(recursive);
     bundleEntry->setSyncWeightSum(syncWeightSum);
+    if (parentEntry && parentEntry->type == sb::PlayableEntry::Type::Bundle) {
+      static_cast<sb::BundleEntry*>(parentEntry)->recalculateWeightSum();
+    }
     handleMap_[oldHandle] = newHandle;
     if (!path.empty()) {
       return true;

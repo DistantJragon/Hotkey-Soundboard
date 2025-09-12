@@ -73,9 +73,6 @@
         <property name="toolTip">
          <string>Rename bundle</string>
         </property>
-        <property name="toolTipDuration">
-         <number>5</number>
-        </property>
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
         </property>

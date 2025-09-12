@@ -13,6 +13,8 @@ ReleaseBuild {
     DEFINES += HKSBNDEBUG
 }
 
+RC_ICONS = resources/HotkeySoundboard.ico
+
 SOURCES += \
     main.cpp \
     src/adapters/qt/audio/basicaudioengine.cpp \

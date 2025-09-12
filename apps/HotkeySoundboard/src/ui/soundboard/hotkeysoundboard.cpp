@@ -432,9 +432,9 @@ void HotkeySoundboard::changeSyncWeightSum(sb::EntryHandle entry, bool sync) {
   }
   sb::BundleEntry* bundleEntry = static_cast<sb::BundleEntry*>(entryPtr);
   bundleEntry->setSyncWeightSum(sync);
-  if (bundleEntry->getParentHandle() != sb::InvalidEntryHandle) {
-    sb::PlayableEntry* parentPtr =
-        soundboard->getEntry(bundleEntry->getParentHandle());
+  sb::EntryHandle parentHandle = bundleEntry->getParentHandle();
+  if (parentHandle != sb::InvalidEntryHandle) {
+    sb::PlayableEntry* parentPtr = soundboard->getEntry(parentHandle);
     if (!parentPtr) {
       qWarning("Failed to retrieve parent entry for handle '%d'.",
                bundleEntry->getParentHandle());

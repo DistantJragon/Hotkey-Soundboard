@@ -107,6 +107,9 @@
    </item>
    <item>
     <widget class="QSpinBox" name="weightSpinBox">
+     <property name="toolTip">
+      <string>Weight</string>
+     </property>
      <property name="correctionMode">
       <enum>QAbstractSpinBox::CorrectionMode::CorrectToNearestValue</enum>
      </property>

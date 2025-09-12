@@ -456,6 +456,7 @@ void HotkeySoundboard::newRootBundle() {
     return;
   } else {
     loadRootBundleControlWidgetFromEntry(newBundleHandle);
+    ui->scrollArea->ensureVisible(0, 0, 0, 0);
   }
 }
 

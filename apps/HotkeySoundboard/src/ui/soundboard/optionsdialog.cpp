@@ -38,7 +38,12 @@ void OptionsDialog::initializeMapAndUI() {
   int intervalHours = optionsMap["checkUpdate/intervalHours"].toInt();
   ui->updateIntervalSlider->setValue(intervalHours);
   // Set text to "Every X Hours"
-  QString labelText = "Every " + QString::number(intervalHours) + " hours";
+  QString labelText = "Every ";
+  if (intervalHours == 1) {
+    labelText += "hour";
+  } else {
+    labelText += QString::number(intervalHours) + " hours";
+  }
   ui->updateIntervalHoursLabel->setText(labelText);
 
   // notifyErrors
@@ -70,7 +75,12 @@ void OptionsDialog::initializeMapAndUI() {
   connect(ui->updateIntervalSlider, &QSlider::valueChanged, this,
           [this](int value) {
             optionsMap["checkUpdate/intervalHours"] = value;
-            QString labelText = "Every " + QString::number(value) + " hours";
+            QString labelText = "Every ";
+            if (value == 1) {
+              labelText += "hour";
+            } else {
+              labelText += QString::number(value) + " hours";
+            }
             ui->updateIntervalHoursLabel->setText(labelText);
           });
 
@@ -85,6 +95,10 @@ void OptionsDialog::initializeMapAndUI() {
   connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
   connect(applyButton, &QPushButton::clicked, this,
           [this]() { emit applyRequested(optionsMap); });
+
+  // Set default page
+  unFlattenPageButtons();
+  ui->updatePageButton->click();
 }
 
 void OptionsDialog::unFlattenPageButtons() {

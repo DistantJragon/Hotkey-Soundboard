@@ -202,6 +202,7 @@ void HotkeyManagerDialog::fillCategoryCombo(CategoryHandle selected) {
 }
 
 void HotkeyManagerDialog::fillActionTypeCombo(HotkeyAction::Type action) {
+  // TODO: Enable Stop Entry action when implemented
   ui->actionTypeComboBox->clear();
   ui->actionTypeComboBox->addItem("None",
                                   static_cast<int>(HotkeyAction::Type::None));
@@ -209,8 +210,9 @@ void HotkeyManagerDialog::fillActionTypeCombo(HotkeyAction::Type action) {
       "Change Category", static_cast<int>(HotkeyAction::Type::ChangeCategory));
   ui->actionTypeComboBox->addItem(
       "Play Entry", static_cast<int>(HotkeyAction::Type::PlayEntry));
-  ui->actionTypeComboBox->addItem(
-      "Stop Entry", static_cast<int>(HotkeyAction::Type::StopEntry));
+  // Disabled for now
+  // ui->actionTypeComboBox->addItem(
+  //     "Stop Entry", static_cast<int>(HotkeyAction::Type::StopEntry));
   ui->actionTypeComboBox->addItem(
       "Stop All", static_cast<int>(HotkeyAction::Type::StopAll));
   if (ui->tableView->selectionModel()->selectedRows().size() > 1) {
@@ -228,7 +230,8 @@ void HotkeyManagerDialog::fillActionTypeCombo(HotkeyAction::Type action) {
     ui->actionTypeComboBox->setCurrentIndex(2);
     break;
   case HotkeyAction::Type::StopEntry:
-    ui->actionTypeComboBox->setCurrentIndex(3);
+    // ui->actionTypeComboBox->setCurrentIndex(3);
+    ui->actionTypeComboBox->setCurrentIndex(0);
     break;
   case HotkeyAction::Type::StopAll:
     ui->actionTypeComboBox->setCurrentIndex(4);

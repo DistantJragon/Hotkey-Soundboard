@@ -66,6 +66,17 @@ if (-Not $hksb_version) {
 }
 Write-Host "Version set to: $hksb_version"
 
+Write-Host "========================="
+Write-Host "What version of the installer package are you creating?"
+
+$installer_package_version = Read-Host "Enter installer package version (e.g., X.X.X-X.X)"
+if (-Not $installer_package_version) {
+    Write-Error "Installer package version cannot be empty. Please run the script again and enter a valid version."
+    Reset-Path-Unmodified
+    exit 1
+}
+Write-Host "Installer package version set to: $installer_package_version"
+
 try {
     . "$PSScriptRoot/SharedVariables.ps1"
 } catch {
@@ -129,7 +140,8 @@ if (-Not $SkipInstaller) {
     Prepare-PackageDir -ProjectRoot $hksb_project_root `
       -DeployDir $hksb_dist_os `
       -BinariesDir $hksb_binaries_dir `
-      -PackageDir $hksb_package_dir
+      -PackageDir $hksb_package_dir `
+      -InstallerPackageVersion $installer_package_version
   } catch {
     Write-Error $_
     cd $hksb_project_root

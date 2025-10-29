@@ -3,7 +3,8 @@ function Prepare-PackageDir {
         [string]$ProjectRoot,
         [string]$DeployDir,
         [string]$BinariesDir,
-        [string]$PackageDir
+        [string]$PackageDir,
+        [string]$InstallerPackageVersion
     )
 
     if (-Not (Test-Path $DeployDir)) {
@@ -40,6 +41,23 @@ function Prepare-PackageDir {
     Copy-Item -Path "$ProjectRoot/LICENSE" -Destination "$package_meta_path/LICENSE" -Force
     if ($? -ne $true) {
         throw "Failed to copy LICENSE file to '$package_meta_path/LICENSE'. Please check permissions."
+    }
+
+    # Replace version placeholder in meta/package.xml
+    $package_xml_path = "$package_meta_path/package.xml"
+    (Get-Content $package_xml_path) -replace '<Version>.*</Version>', "<Version>$InstallerPackageVersion</Version>" |
+        Set-Content $package_xml_path
+    if ($? -ne $true) {
+        throw "Failed to update version in package meta file '$package_xml_path'. Please check permissions."
+    }
+
+    # Replace release date placeholder in meta/package.xml
+    $current_date = Get-Date -Format "yyyy-MM-dd"
+    (Get-Content $package_xml_path) `
+        -replace '<ReleaseDate>.*</ReleaseDate>', "<ReleaseDate>$current_date</ReleaseDate>" |
+        Set-Content $package_xml_path
+    if ($? -ne $true) {
+        throw "Failed to update release date in package meta file '$package_xml_path'. Please check permissions."
     }
 
 }

@@ -102,6 +102,15 @@ HEADERS += \
     src/adapters/qt/hotkey/winhotkeymanager.h
 }
 
+!win32:{
+
+SOURCES += \
+    src/adapters/qt/hotkey/dbushotkeymanager.cpp
+HEADERS += \
+    src/adapters/qt/hotkey/dbushotkeymanager.h
+
+}
+
 RESOURCES += \
   resources/hotkeysoundboard.qrc
 
@@ -109,5 +118,4 @@ RESOURCES += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
 

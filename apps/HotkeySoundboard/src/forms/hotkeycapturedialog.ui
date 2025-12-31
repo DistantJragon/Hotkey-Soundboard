@@ -35,7 +35,7 @@
       <property name="inputMethodHints">
        <set>Qt::InputMethodHint::ImhNone</set>
       </property>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="hotkeyNameEdit">
        <property name="geometry">
         <rect>
          <x>10</x>

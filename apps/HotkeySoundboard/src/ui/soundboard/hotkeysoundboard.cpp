@@ -17,7 +17,7 @@ HotkeySoundboard::HotkeySoundboard(QWidget* parent)
 #ifdef Q_OS_WIN
   hotkeyManager = std::make_unique<sb::adapters::qt::WinHotkeyManager>();
 #else
-  // TODO: D-Bus
+  hotkeyManager = std::make_unique<sb::adapters::qt::DBusHotkeyManager>();
 #endif // Q_OS_WIN
   setupHotkeyModel();
   setupRootBundleContainerWidget();

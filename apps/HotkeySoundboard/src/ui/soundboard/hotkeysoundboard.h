@@ -16,7 +16,7 @@
 #ifdef Q_OS_WIN
 #include "adapters/qt/hotkey/winhotkeymanager.h"
 #else
-// TODO: D-Bus
+#include "adapters/qt/hotkey/dbushotkeymanager.h"
 #endif // Q_OS_WIN
 
 QT_BEGIN_NAMESPACE
@@ -74,7 +74,7 @@ private:
 #ifdef Q_OS_WIN
   std::unique_ptr<sb::adapters::qt::WinHotkeyManager> hotkeyManager;
 #else
-  // TODO: D-Bus
+  std::unique_ptr<sb::adapters::qt::DBusHotkeyManager> hotkeyManager;
 #endif // Q_OS_WIN
   QWidget* rootBundleContainerWidget = nullptr;
   FlowLayout* rootBundleFlowLayout = nullptr;
